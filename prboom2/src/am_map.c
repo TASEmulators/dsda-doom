@@ -2196,11 +2196,13 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   ang = (rotate ? angle : 0) + (automap_rotate ? ANG90 - viewangle : 0);
   rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
 
+#ifdef __ENABLE_OPENGL_
   gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
   if (need_shadow)
   {
     gld_AddNiceThing(am_icon_shadow, fx, fy, shadow_radius, rot, 0, 0, 0, 128);
   }
+  #endif
 }
 
 static void AM_DrawNiceThings(void)
@@ -2210,7 +2212,9 @@ static void AM_DrawNiceThings(void)
   mpoint_t p;
   angle_t angle;
 
+#ifdef __ENABLE_OPENGL_
   gld_ClearNiceThings();
+#endif
 
   // draw players
   for (i = 0; i < g_maxplayers; i++)
@@ -2294,7 +2298,9 @@ static void AM_DrawNiceThings(void)
         p.fx = CXMTOF_F(p.fx);
         p.fy = CYMTOF_F(p.fy);
 
+        #ifdef __ENABLE_OPENGL_
         gld_AddNiceThing(am_icon_mark, p.fx, p.fy, radius, 0, 255, 255, 0, (unsigned char)anim_flash_level);
+        #endif
       }
     }
   }
@@ -2698,10 +2704,12 @@ void M_ChangeMapTextured(void)
 {
   map_textured = dsda_IntConfig(dsda_config_map_textured);
 
+#ifdef __ENABLE_OPENGL_
   if (in_game && gamestate == GS_LEVEL && V_IsOpenGLMode())
   {
     gld_ProcessTexturedMap();
   }
+#endif
 }
 
 void M_ChangeMapMultisamling(void)
@@ -2722,10 +2730,12 @@ void M_ChangeMapMultisamling(void)
 
 void AM_drawSubsectors(void)
 {
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_MapDrawSubsectors(plr, f_x, f_y, m_x, m_y, f_w, f_h, scale_mtof);
   }
+  #endif
 }
 
 static void AM_setFrameVariables(void)
@@ -2796,11 +2806,13 @@ void AM_Drawer (dboolean minimap)
 
   AM_setFrameVariables();
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     // do not use multisampling in automap mode if map_use_multisampling 0
     gld_MultisamplingSet();
   }
+#endif
 
   if (!automap_overlay) // cph - If not overlay mode, clear background for the automap
     V_FillRect(FB, f_x, f_y, f_w, f_h, (byte)mapcolor_p->back); //jff 1/5/98 background default color
@@ -2822,6 +2834,7 @@ void AM_Drawer (dboolean minimap)
   AM_DrawConnections();
   AM_drawCrosshair(mapcolor_p->hair);   //jff 1/7/98 default crosshair color
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_DrawMapLines();
@@ -2834,6 +2847,7 @@ void AM_Drawer (dboolean minimap)
     }
 #endif
   }
+#endif
 
   AM_drawMarks();
 

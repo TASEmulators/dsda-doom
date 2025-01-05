@@ -3719,7 +3719,9 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
   if (!samelevel)
   {
     // proff 11/99: clean the memory from textures etc.
+    #ifdef __ENABLE_OPENGL_
     gld_CleanMemory();
+    #endif
 
     Z_Free(segs);
     Z_Free(nodes);
@@ -3910,6 +3912,7 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
   // preload graphics
   R_PrecacheLevel();
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     // e6y
@@ -3922,6 +3925,7 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
       gld_PreprocessLevel();
     }
   }
+  #endif
 
   //e6y
   if (!samelevel)

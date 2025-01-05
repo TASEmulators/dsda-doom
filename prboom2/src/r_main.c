@@ -748,8 +748,11 @@ void R_ExecuteSetViewSize (void)
     }
   }
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
     dsda_GLSetRenderViewportParams();
+#endif
+
 
   dsda_InitExHud();
   dsda_BeginRenderStats();
@@ -984,6 +987,7 @@ static void R_InitDrawScene(void)
   static int fuzzgametic = 0;
   static int savedfuzzpos = 0;
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     // proff 11/99: clear buffers
@@ -994,7 +998,9 @@ static void R_InitDrawScene(void)
       // proff 11/99: switch to perspective mode
       gld_StartDrawScene();
     }
-  } else {
+  } else 
+  #endif
+  {
     if (dsda_IntConfig(dsda_config_flashing_hom))
     { // killough 2/10/98: add flashing red HOM indicators
       unsigned char color=(gametic % 20) < 9 ? 0xb0 : 0;
@@ -1061,11 +1067,13 @@ void R_RenderPlayerView (player_t* player)
 
   FakeNetUpdate();
 
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode()) {
     DSDA_ADD_CONTEXT(sf_gl_frustum);
     gld_FrustumSetup();
     DSDA_REMOVE_CONTEXT(sf_gl_frustum);
   }
+  #endif
 
   DSDA_ADD_CONTEXT(sf_bsp_nodes);
   R_RenderBSPNodes();
@@ -1095,10 +1103,12 @@ void R_RenderPlayerView (player_t* player)
 
   FakeNetUpdate();
 
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode() && !automap_on) {
     DSDA_ADD_CONTEXT(sf_draw_scene);
     gld_DrawScene(player);
     gld_EndDrawScene();
     DSDA_REMOVE_CONTEXT(sf_draw_scene);
   }
+  #endif
 }

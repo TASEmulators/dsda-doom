@@ -59,12 +59,14 @@ int renderH;
 
 void I_UpdateRenderSize(void)
 {
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     renderW = gl_window_width;
     renderH = gl_window_height;
   }
   else
+  #endif
   {
     SDL_GetRendererOutputSize(sdl_renderer, &renderW, &renderH);
   }
@@ -113,10 +115,12 @@ unsigned char *I_GrabScreen(void)
 
   I_UpdateRenderSize();
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     return gld_ReadScreen();
   }
+#endif
 
   size = renderW * renderH * 3;
   if (!pixels || size > pixels_size)

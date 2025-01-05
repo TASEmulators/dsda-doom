@@ -267,20 +267,24 @@ static void D_Wipe(void)
     while (!tics);
 
     // elim - Enable render-to-texture for GL so "melt" is rendered at same resolution as the game scene
+    #ifdef __ENABLE_OPENGL_
     if (V_IsOpenGLMode())
     {
       dsda_GLLetterboxClear();
       dsda_GLStartMeltRenderTexture();
     }
+    #endif
 
     wipestart = nowtime;
     done = wipe_ScreenWipe(tics);
 
     // elim - Render texture to screen
+    #ifdef __ENABLE_OPENGL_
     if (V_IsOpenGLMode())
     {
       dsda_GLEndMeltRenderTexture();
     }
+    #endif
 
     M_Drawer();                   // menu is drawn even on top of wipes
 
@@ -359,10 +363,12 @@ void D_Display (fixed_t frac)
     if (!dsda_InputActive(dsda_input_use))
       return;
 
+#ifdef __ENABLE_OPENGL_
     if (V_IsOpenGLMode())
     {
       gld_PreprocessLevel();
     }
+    #endif
   }
 
   if (!dsda_SkipMode() || !dsda_InputActive(dsda_input_use))
@@ -377,8 +383,10 @@ void D_Display (fixed_t frac)
     oldgamestate = -1;            // force background redraw
   }
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode() && !exclusive_fullscreen && !nodrawers)
     dsda_GLLetterboxClear();
+#endif
 
   // save the current screen if about to wipe
   if ((wipe = (gamestate != wipegamestate)))
@@ -437,6 +445,7 @@ void D_Display (fixed_t frac)
       borderwillneedredraw = borderwillneedredraw || automap_on;
     }
 
+      #ifdef __ENABLE_OPENGL_
     if (redrawborderstuff || V_IsOpenGLMode()) {
       // elim - Update viewport and scene offsets whenever the view is changed (user hits "-" or "+")
       if (redrawborderstuff && V_IsOpenGLMode()) {
@@ -445,11 +454,14 @@ void D_Display (fixed_t frac)
 
       R_DrawViewBorder();
     }
+    #endif
 
     // elim - If we go from visible status bar to invisible status bar, update affected viewport params
+    #ifdef __ENABLE_OPENGL_
     if (!isborder && isborderstate) {
       dsda_GLUpdateStatusBarVisible();
     }
+    #endif
 
     // e6y
     // Boom colormaps should be applied for everything in R_RenderPlayerView
@@ -1757,7 +1769,9 @@ void D_DoomMainSetup(void)
   // jff 3/24/98 this sets startskill if it was -1
 
   // proff 04/05/2000: for GL-specific switches
+  #ifdef __ENABLE_OPENGL_
   gld_InitCommandLine();
+  #endif
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "V_Init: allocate screens.\n");

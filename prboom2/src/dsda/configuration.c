@@ -95,8 +95,13 @@ void M_ChangeMessages(void);
 void S_ResetSfxVolume(void);
 void I_ResetMusicVolume(void);
 void M_ChangeAllowFog(void);
+#ifdef __ENABLE_OPENGL_
 void gld_ResetShadowParameters(void);
 void gld_MultisamplingInit(void);
+#else
+void gld_ResetShadowParameters(void){};
+void gld_MultisamplingInit(void){};
+#endif
 void M_ChangeFOV(void);
 void I_InitMouse(void);
 void AccelChanging(void);
@@ -118,7 +123,11 @@ void M_ChangeMapMultisamling(void);
 void M_ChangeMapTextured(void);
 void AM_InitParams(void);
 void AM_initPlayerTrail(void);
+#ifdef __ENABLE_OPENGL_
 void gld_ResetAutomapTransparency(void);
+#else
+void gld_ResetAutomapTransparency(void){}
+#endif
 void M_ChangeVideoMode(void);
 void M_ChangeUncappedFrameRate(void);
 void M_ChangeFullScreen(void);

@@ -111,6 +111,9 @@ static anim_t*  lastanim;
 static anim_t*  anims;                // new structure w/o limits -- killough
 static size_t maxanims;
 
+TAnimItemParam *anim_flats = NULL;
+TAnimItemParam *anim_textures = NULL;
+
 // killough 3/7/98: Initialize generalized scrolling
 static void P_SpawnScrollers(void);
 

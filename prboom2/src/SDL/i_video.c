@@ -594,11 +594,13 @@ void I_FinishUpdate (void)
   //!!}
 #endif
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode()) {
     // proff 04/05/2000: swap OpenGL buffers
     gld_Finish();
     return;
   }
+#endif
 
   if (SDL_MUSTLOCK(screen)) {
       int h;
@@ -992,11 +994,14 @@ void I_CalculateRes(int width, int height)
     I_ClosestResolution(&width, &height);
   }
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode()) {
     SCREENWIDTH = width;
     SCREENHEIGHT = height;
     SCREENPITCH = SCREENWIDTH;
-  } else {
+  } else
+  #endif
+   {
     unsigned int count1, count2;
     int pitch1, pitch2;
 
@@ -1241,12 +1246,14 @@ void I_UpdateVideoMode(void)
   {
     // video capturing cannot be continued with new screen settings
     I_CaptureFinish();
-
+  
+  #ifdef __ENABLE_OPENGL_
     if (V_IsOpenGLMode())
     {
       gld_CleanMemory();
       gld_CleanStaticMemory();
     }
+  #endif
 
     I_InitScreenResolution();
 
@@ -1266,10 +1273,12 @@ void I_UpdateVideoMode(void)
   }
 
   // Initialize SDL with this graphics mode
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode()) {
     init_flags |= SDL_WINDOW_OPENGL;
   }
-
+  #endif
+  
   // [FG] aspect ratio correction for the canonical video modes
   if (SCREENHEIGHT == 200 || SCREENHEIGHT == 400)
   {
@@ -1299,6 +1308,7 @@ void I_UpdateVideoMode(void)
   }
 
     // For headless operation, prevent SDL from creating window
+    #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
@@ -1327,6 +1337,7 @@ void I_UpdateVideoMode(void)
     // SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
   }
   else
+  #endif
   {
     // int flags = SDL_RENDERER_TARGETTEXTURE;
 
@@ -1384,10 +1395,12 @@ void I_UpdateVideoMode(void)
 
   windowid = SDL_GetWindowID(sdl_window);
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     SDL_GL_SetSwapInterval((render_vsync ? 1 : 0));
   }
+#endif
 
   if (V_IsSoftwareMode())
   {
@@ -1417,6 +1430,7 @@ void I_UpdateVideoMode(void)
   V_SetPalette(0);
   I_UploadNewPalette(0, true);
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     int temp;
@@ -1452,10 +1466,12 @@ void I_UpdateVideoMode(void)
 
     gld_Init(SCREENWIDTH, SCREENHEIGHT);
   }
+#endif
 
   ST_SetResolution();
   AM_SetResolution();
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     M_ChangeFOV();
@@ -1466,6 +1482,7 @@ void I_UpdateVideoMode(void)
     dsda_GLSetRenderViewportParams();
     dsda_GLSetRenderViewport();
   }
+  #endif
 
   src_rect.w = SCREENWIDTH;
   src_rect.h = SCREENHEIGHT;
@@ -1627,8 +1644,11 @@ static void ApplyWindowResize(SDL_Event *resize_event)
   if (!V_IsOpenGLMode() || !sdl_window)
     return;
 
+
+#ifdef __ENABLE_OPENGL_
   dsda_GLGetSDLWindowSize(sdl_window);
   dsda_GLSetRenderViewportParams();
+  #endif
 }
 
 /////////// Headless function

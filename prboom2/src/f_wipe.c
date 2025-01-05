@@ -150,10 +150,12 @@ static int wipe_doMelt(int ticks)
       }
     }
   }
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_wipe_doMelt(ticks, y_lookup);
   }
+  #endif
   return done;
 }
 
@@ -161,11 +163,13 @@ static int wipe_doMelt(int ticks)
 
 static int wipe_exitMelt(int ticks)
 {
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_wipe_exitMelt(ticks);
     return 0;
   }
+  #endif
 
   V_FreeScreen(&wipe_scr_start);
   wipe_scr_start.width = 0;
@@ -184,11 +188,13 @@ int wipe_StartScreen(void)
   if(dsda_PendingSkipWipe() || wasWiped) return 0;//e6y
   wasWiped = true;//e6y
 
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_wipe_StartScreen();
     return 0;
   }
+  #endif
 
   wipe_scr_start.width = SCREENWIDTH;
   wipe_scr_start.height = SCREENHEIGHT;
@@ -210,11 +216,13 @@ int wipe_EndScreen(void)
   if(dsda_PendingSkipWipe() || !wasWiped) return 0;//e6y
   wasWiped = false;//e6y
 
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_wipe_EndScreen();
     return 0;
   }
+  #endif
 
   wipe_scr_end.width = SCREENWIDTH;
   wipe_scr_end.height = SCREENHEIGHT;

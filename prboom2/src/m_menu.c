@@ -3196,10 +3196,12 @@ void M_ChangeFullScreen(void)
 {
   I_UpdateVideoMode();
 
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_PreprocessLevel();
   }
+  #endif
 }
 
 void M_ChangeVideoMode(void)

@@ -103,8 +103,10 @@ void dsda_ExitSkipMode(void) {
   S_Init();
   S_RestartMusic();
 
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
     gld_PreprocessLevel();
+  #endif
 }
 
 void dsda_ToggleSkipMode(void) {

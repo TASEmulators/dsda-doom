@@ -82,10 +82,12 @@ result_e T_MoveCeilingPlane
   fixed_t       lastpos;
   fixed_t       destheight; //jff 02/04/98 used to keep ceilings from moving thru each other
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_UpdateSplitData(sector);
   }
+  #endif
 
   switch(direction)
   {

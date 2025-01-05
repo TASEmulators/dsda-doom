@@ -678,11 +678,11 @@ void V_SetPalette(int pal)
 {
   currentPaletteIndex = pal;
 
-  if (V_IsOpenGLMode()) {
-    gld_SetPalette(pal);
-  } else {
+#ifdef __ENABLE_OPENGL_
+  if (V_IsOpenGLMode()) {gld_SetPalette(pal);
+  else 
+#endif
     I_SetPalette(pal);
-  }
 }
 
 void V_SetPlayPal(int playpal_index)
@@ -691,10 +691,12 @@ void V_SetPlayPal(int playpal_index)
   R_UpdatePlayPal();
   V_SetPalette(currentPaletteIndex);
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_FlushTextures();
   }
+  #endif
 }
 
 //
@@ -718,61 +720,89 @@ static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight);
 
 static void WRAP_gld_BeginUIDraw(void)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_BeginUIDraw();
+  #endif
 }
 static void WRAP_gld_EndUIDraw(void)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_EndUIDraw();
+  #endif
 }
 static void WRAP_gld_BeginAutomapDraw(void)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_BeginAutomapDraw();
+  #endif
 }
 static void WRAP_gld_EndAutomapDraw(void)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_EndAutomapDraw();
+  #endif
 }
 static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_FillBlock(x,y,width,height,colour);
+  #endif
 }
 static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
 }
 static void WRAP_gld_DrawBackground(const char *flatname, int n)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_FillFlatName(flatname, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
+  #endif
 }
 static void WRAP_gld_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_FillFlat(lump, x, y, width, height, flags);
+  #endif
 }
 static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_FillPatch(lump, x, y, width, height, flags);
+  #endif
 }
 static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_DrawNumPatch(x,y,lump,cm,flags);
+  #endif
 }
 static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_DrawNumPatch_f(x,y,lump,cm,flags);
+  #endif
 }
 static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
+  #ifdef __ENABLE_OPENGL_
   gld_DrawLine(x-1, y, x+1, y, color);
   gld_DrawLine(x, y-1, x, y+1, color);
+  #endif
 }
 static void V_PlotPixelWuGL(int scrn, int x, int y, byte color, int weight) {
+  #ifdef __ENABLE_OPENGL_
   V_PlotPixelGL(scrn, x, y, color);
+  #endif
 }
 static void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_DrawLine_f(fl->a.fx, fl->a.fy, fl->b.fx, fl->b.fy, color);
+  #endif
 }
 static void WRAP_gld_DrawShaded(int scrn, int x, int y, int width, int height, int shade)
 {
+  #ifdef __ENABLE_OPENGL_
   gld_DrawShaded(x, y, width, height, shade);
+  #endif
 }
 
 static void NULL_BeginUIDraw(void) {}
@@ -868,11 +898,18 @@ dboolean V_IsOpenGLMode(void) {
 }
 
 dboolean V_IsUILightmodeIndexed(void) {
+  #ifdef __ENABLE_OPENGL_
   return gl_ui_lightmode_indexed;
+  #endif
+  return 0;
 }
 
 dboolean V_IsAutomapLightmodeIndexed(void) {
+  #ifdef __ENABLE_OPENGL_
   return gl_automap_lightmode_indexed;
+  #endif
+
+  return 0;
 }
 
 void V_CopyScreen(int srcscrn, int destscrn)
@@ -1415,10 +1452,12 @@ void V_ChangeScreenResolution(void)
 {
   I_UpdateVideoMode();
 
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     gld_PreprocessLevel();
   }
+  #endif
 }
 
 void V_FillRectVPT(int scrn, int x, int y, int width, int height, byte color, enum patch_translation_e flags)
@@ -1488,10 +1527,12 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   // TODO: create a V_FillRaw alias and call that instead of the gld_ func directly,
   // though that means there needs to be a software version too (that's ideally a
   // bit more efficient than the current code's thousands-of-little-boxes approach)
+  #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode()) {
     gld_FillRawName(lump_name, x_offset, y_offset, 320, 200, 320 * x_factor, 200 * y_factor, VPT_STRETCH_REAL);
     return;
   }
+  #endif
 
   raw = (const byte *)W_LumpByName(lump_name) + source_offset;
 

@@ -272,6 +272,7 @@ void M_ChangeSpeed(void)
 
 void M_ChangeSkyMode(void)
 {
+  #ifdef __ENABLE_OPENGL_
   int gl_skymode;
 
   viewpitch = 0;
@@ -284,6 +285,7 @@ void M_ChangeSkyMode(void)
     gl_drawskys = (dsda_MouseLook() ? skytype_skydome : skytype_standard);
   else
     gl_drawskys = gl_skymode;
+  #endif
 }
 
 static const int upViewPitchLimit = -ANG90 + (1 << ANGLETOFINESHIFT);

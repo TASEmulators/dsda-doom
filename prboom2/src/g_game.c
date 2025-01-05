@@ -2384,7 +2384,9 @@ void RecalculateDrawnSubsectors(void)
     }
   }
 
+  #ifdef __ENABLE_OPENGL_
   gld_ResetTexturedAutomap();
+  #endif
 }
 
 void G_AfterLoad(void)

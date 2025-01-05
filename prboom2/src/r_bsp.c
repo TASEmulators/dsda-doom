@@ -393,6 +393,7 @@ static void R_AddLine (seg_t *line)
 
   curline = line;
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     line_t* l = line->linedef;
@@ -459,6 +460,7 @@ static void R_AddLine (seg_t *line)
 
     return;
   }
+  #endif
 
   angle1 = R_PointToAngleEx(line->v1->px, line->v1->py);
   angle2 = R_PointToAngleEx(line->v2->px, line->v2->py);
@@ -570,12 +572,14 @@ static dboolean R_CheckBBox(const fixed_t *bspcoord)
 
   check = checkcoord[boxpos];
 
+#ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode())
   {
     angle1 = R_PointToPseudoAngle(bspcoord[check[0]], bspcoord[check[1]]);
     angle2 = R_PointToPseudoAngle(bspcoord[check[2]], bspcoord[check[3]]);
     return gld_clipper_SafeCheckRange(angle2, angle1);
   }
+#endif
 
   angle1 = R_PointToAngleEx (bspcoord[check[0]], bspcoord[check[1]]) - viewangle;
   angle2 = R_PointToAngleEx (bspcoord[check[2]], bspcoord[check[3]]) - viewangle;
@@ -626,6 +630,8 @@ static visplane_t dummyceilingplane;
 // much more correctly and fastly the the original
 static void R_HandleGLFakeFlats(sector_t *sector)
 {
+  #ifdef __ENABLE_OPENGL_
+
   // check if the sector is faked
   sector_t *tmpsec = NULL;
 
@@ -741,6 +747,7 @@ static void R_HandleGLFakeFlats(sector_t *sector)
       }
     }
   }
+  #endif
 }
 
 static void R_UpdateGlobalPlanes(sector_t *sector, int *floorlightlevel, int *ceilinglightlevel)

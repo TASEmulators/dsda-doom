@@ -323,7 +323,9 @@ static void R_DoAnInterpolation (int i, fixed_t smoothratio)
   {
   case INTERP_SectorFloor:
   case INTERP_SectorCeiling:
+  #ifdef __ENABLE_OPENGL_
     gld_UpdateSplitData(((sector_t*)curipos[i].address));
+  #endif
     break;
   }
 }

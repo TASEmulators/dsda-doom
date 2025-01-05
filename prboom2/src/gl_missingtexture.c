@@ -70,11 +70,11 @@ typedef struct
   enum bleedtype type; // Ceiling or floor, occlusion-based or not
 } bleedthrough_t;
 
-static int numfakeplanes = 0;
-static fakegroup_t *fakeplanes = NULL;
-static sector_t **sectors2 = NULL;
-static bleedthrough_t *bleedsectors = NULL;
-static int numbleedsectors = 0;
+extern int numfakeplanes = 0;
+extern fakegroup_t *fakeplanes = NULL;
+extern sector_t **sectors2 = NULL;
+extern bleedthrough_t *bleedsectors = NULL;
+extern int numbleedsectors = 0;
 
 static void gld_PrepareSectorSpecialEffects(void);
 static void gld_PreprocessFakeSector(int ceiling, sector_t *sector, int groupid);
@@ -199,15 +199,6 @@ static void gld_RegisterBleedthroughSector(sector_t* source, sector_t* target, e
       ((type & BLEED_CEILING) && bleedsectors[idx].source->ceilingheight > source->ceilingheight) ||
       (!(type & BLEED_CEILING) && bleedsectors[idx].source->floorheight < source->floorheight))
     bleedsectors[idx].source = source;
-}
-
-sector_t* GetBestBleedSector(sector_t* target, enum bleedtype type)
-{
-  int i;
-  for (i = 0; i < numbleedsectors; i++)
-    if (bleedsectors[i].target == target && bleedsectors[i].type == type)
-      return bleedsectors[i].source;
-  return NULL;
 }
 
 //
