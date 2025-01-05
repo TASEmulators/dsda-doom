@@ -2117,10 +2117,9 @@ void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, i
 {
   local_cmds[playerId].forwardmove = forwardSpeed;
   local_cmds[playerId].sidemove    = strafingSpeed;
-  local_cmds[playerId].angleturn   = turningSpeed;
+  local_cmds[playerId].angleturn   = turningSpeed << 8;
 
   if (fire == 1)    local_cmds[playerId].buttons |= 0b00000001;
-  
   if (action == 1)  local_cmds[playerId].buttons |= 0b00000010;
 
   if (weapon == 0)  local_cmds[playerId].buttons |= 0b00000000;
@@ -2131,4 +2130,6 @@ void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, i
   if (weapon == 5)  local_cmds[playerId].buttons |= 0b00010100;
   if (weapon == 6)  local_cmds[playerId].buttons |= 0b00011000;
   if (weapon == 7)  local_cmds[playerId].buttons |= 0b00011100;
+
+  // printf("ForwardSpeed: %d - sideMove:     %d - angleTurn:    %d - buttons: %u\n", forwardSpeed, strafingSpeed, turningSpeed, local_cmds[playerId].buttons);
 }
