@@ -2112,3 +2112,17 @@ void headlessUpdateVideo(void)
     D_Display(-1);
   }
 }
+
+void headlessEnableRendering()
+ {
+    nodrawers = 0;
+    nomusicparm = 0;
+    nosfxparm = 0;
+ }
+
+void headlessDisableRendering()
+{
+   nodrawers = 1;
+   nomusicparm = 1;
+   nosfxparm = 1;
+}
