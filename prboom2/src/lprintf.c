@@ -68,7 +68,6 @@ int cons_stderr_mask = LO_WARN | LO_ERROR;
 
 int lprintf(OutputLevels pri, const char *s, ...)
 {
-  return 0; // Simply ignore prints
   int r=0;
   char msg[MAX_MESSAGE_SIZE];
   int lvl=pri;
@@ -133,7 +132,8 @@ void I_Error(const char *error, ...)
     I_MessageBox(errmsg, PRB_MB_OK);
   }
 #endif
-  I_SafeExit(-1);
+
+ abort(); // Allow debugging
 }
 
 void I_Warn(const char *error, ...)

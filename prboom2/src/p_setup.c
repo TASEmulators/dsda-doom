@@ -1078,7 +1078,10 @@ static void CheckZNodesOverflow(int *size, int count)
 
 static byte *P_DecompressData(const byte **data, int *len)
 {
-  byte *output;
+  byte *output = NULL;
+
+  #ifdef __ENABLE_ZIP
+
   int outlen, err;
   z_stream *zstream;
   union
@@ -1124,6 +1127,8 @@ static byte *P_DecompressData(const byte **data, int *len)
       I_Error("P_DecompressData: Error during decompression shut-down!");
 
   Z_Free(zstream);
+
+  #endif
 
   return output;
 }

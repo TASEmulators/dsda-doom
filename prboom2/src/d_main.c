@@ -255,47 +255,48 @@ static void D_Wipe(void)
 
   wipestart = dsda_GetTick() - 1;
 
-  do
-  {
-    int nowtime, tics;
-    do
-    {
-      I_uSleep(5000); // CPhipps - don't thrash cpu in this loop
-      nowtime = dsda_GetTick();
-      tics = nowtime - wipestart;
-    }
-    while (!tics);
+  //  This routine prevents re-recording
+  // do
+  // {
+  //   int nowtime, tics;
+  //   do
+  //   {
+  //     I_uSleep(5000); // CPhipps - don't thrash cpu in this loop
+  //     nowtime = dsda_GetTick();
+  //     tics = nowtime - wipestart;
+  //   }
+  //   while (!tics);
 
-    // elim - Enable render-to-texture for GL so "melt" is rendered at same resolution as the game scene
-    #ifdef __ENABLE_OPENGL_
-    if (V_IsOpenGLMode())
-    {
-      dsda_GLLetterboxClear();
-      dsda_GLStartMeltRenderTexture();
-    }
-    #endif
+  //   // elim - Enable render-to-texture for GL so "melt" is rendered at same resolution as the game scene
+  //   #ifdef __ENABLE_OPENGL_
+  //   if (V_IsOpenGLMode())
+  //   {
+  //     dsda_GLLetterboxClear();
+  //     dsda_GLStartMeltRenderTexture();
+  //   }
+  //   #endif
 
-    wipestart = nowtime;
-    done = wipe_ScreenWipe(tics);
+  //   wipestart = nowtime;
+  //   done = wipe_ScreenWipe(tics);
 
-    // elim - Render texture to screen
-    #ifdef __ENABLE_OPENGL_
-    if (V_IsOpenGLMode())
-    {
-      dsda_GLEndMeltRenderTexture();
-    }
-    #endif
+  //   // elim - Render texture to screen
+  //   #ifdef __ENABLE_OPENGL_
+  //   if (V_IsOpenGLMode())
+  //   {
+  //     dsda_GLEndMeltRenderTexture();
+  //   }
+  //   #endif
 
-    M_Drawer();                   // menu is drawn even on top of wipes
+  //   M_Drawer();                   // menu is drawn even on top of wipes
 
-    if (capturing_video && !dsda_SkipMode() && cap_wipescreen)
-    {
-      I_QueueFrameCapture();
-    }
+  //   if (capturing_video && !dsda_SkipMode() && cap_wipescreen)
+  //   {
+  //     I_QueueFrameCapture();
+  //   }
 
-    I_FinishUpdate();             // page flip or blit buffer
-  }
-  while (!done);
+  //   I_FinishUpdate();             // page flip or blit buffer
+  // }
+  // while (!done);
 
   if (old_game_speed)
   {
@@ -1408,6 +1409,7 @@ static void LoadDehackedFilesAtPath(const char *path, dboolean defer_loading, de
 
 static void D_AddZip(const char* zipped_file_name, wad_source_t source, deh_queue_t *deh_queue)
 {
+  #ifdef __ENABLE_ZIP
   char* full_zip_path;
   const char* temporary_directory;
 
@@ -1418,6 +1420,9 @@ static void D_AddZip(const char* zipped_file_name, wad_source_t source, deh_queu
   LoadDehackedFilesAtPath(temporary_directory, true, deh_queue);
 
   Z_Free(full_zip_path);
+  #else
+  fprintf(stderr,".ZIP files not supported ('%s')\n", zipped_file_name); abort();
+  #endif
 }
 
 static void LoadZIPsAtPath(const char *path, wad_source_t source, deh_queue_t *deh_queue)

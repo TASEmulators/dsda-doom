@@ -129,7 +129,10 @@ void Z_Free(void *p)
     return;
 
   if (block->signature != ZONE_SIGNATURE)
-    I_Error("Z_Free: freed a non-zone pointer");
+  {
+    fprintf(stderr,"Z_Free: freed a non-zone pointer");
+    abort();
+  }
   block->signature = 0;       // Nullify signature so another free fails
 
   if (block == block->next)

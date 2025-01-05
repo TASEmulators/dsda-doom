@@ -212,7 +212,10 @@ static void I_EssentialQuit (void)
   // Read Endoom before dumping the wads!
   dsda_CacheEndoom();
   W_Shutdown();
+
+  #ifdef __ENABLE_ZIP
   dsda_CleanZipTempDirs();
+  #endif
 }
 
 static void I_Quit (void)

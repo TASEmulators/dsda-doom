@@ -2072,3 +2072,13 @@ void P_UnArchiveMisc(void)
 
   SV_RestoreMapArchive();
 }
+
+
+/// Headless functions
+
+void headlessSetSaveStatePointer(void* savePtr, int saveStateSize)
+{ 
+  save_p = savePtr;
+  savebuffer = savePtr;
+  savegamesize = saveStateSize;
+}
