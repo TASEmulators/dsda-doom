@@ -64,7 +64,7 @@
 #include "dsda/settings.h"
 #include "dsda/time.h"
 
-ticcmd_t local_cmds[MAX_MAXPLAYERS][BACKUPTICS];
+ticcmd_t local_cmds[MAX_MAXPLAYERS];
 int maketic;
 int solo_net = 0;
 
@@ -102,7 +102,7 @@ void FakeNetUpdate(void)
       // after change of game_speed.
       if (maketic - gametic && gametic <= force_singletics_to && dsda_GameSpeed() < 200) break;
 
-      G_BuildTiccmd(&local_cmds[0][maketic%BACKUPTICS]);
+      G_BuildTiccmd(&local_cmds[0]);
       maketic++;
     }
   }

@@ -1550,7 +1550,7 @@ void G_Ticker (void)
       {
         ticcmd_t *cmd = &players[i].cmd;
 
-        memcpy(cmd, &local_cmds[i][buf], sizeof *cmd);
+        memcpy(cmd, &local_cmds[i], sizeof *cmd);
 
         if (dsda_BuildMode())
           dsda_ReadBuildCmd(cmd);
@@ -3958,8 +3958,8 @@ void G_DoPlayDemo(void)
     if (dsda_Flag(dsda_arg_track_playback))
       dsda_ResetSplits();
 
-    lprintf(LO_INFO, "Playing demo:\n  Name: %s\n  Compatibility: %s\n",
-                     defdemoname, comp_lev_str[compatibility_level]);
+    // Ignore this mesage
+    //lprintf(LO_INFO, "Playing demo:\n  Name: %s\n  Compatibility: %s\n", defdemoname, comp_lev_str[compatibility_level]);
 
     gameaction = ga_nothing;
   }

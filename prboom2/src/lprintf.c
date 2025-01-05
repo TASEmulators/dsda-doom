@@ -68,6 +68,7 @@ int cons_stderr_mask = LO_WARN | LO_ERROR;
 
 int lprintf(OutputLevels pri, const char *s, ...)
 {
+  return 0; // Simply ignore prints
   int r=0;
   char msg[MAX_MESSAGE_SIZE];
   int lvl=pri;

@@ -557,7 +557,7 @@ static void D_DoomLoop(void)
     if (singletics)
     {
       I_StartTic ();
-      G_BuildTiccmd (&local_cmds[consoleplayer][maketic%BACKUPTICS]);
+      G_BuildTiccmd (&local_cmds[consoleplayer]);
       if (advancedemo)
         D_DoAdvanceDemo ();
       M_Ticker ();
@@ -2053,25 +2053,8 @@ void D_DoomMain(void)
 
 void headlessRunSingleTick(void)
 {
-  // if (dsda_IntConfig(dsda_config_startup_delay_ms) > 0)
-  //   I_uSleep(dsda_IntConfig(dsda_config_startup_delay_ms) * 1000);
-
-  if (I_Interrupted())
-    I_SafeExit(0);
-
-  WasRenderedInTryRunTics = false;
-  // frame syncronous IO operations
-  I_StartFrame ();
-
-  // process one or more tics
-  I_StartTic ();
-  G_BuildTiccmd (&local_cmds[consoleplayer][maketic%BACKUPTICS]);
-  if (advancedemo)
-    D_DoAdvanceDemo ();
-  M_Ticker ();
   G_Ticker ();
   gametic++;
-  maketic++;
 }
 
 void headlessUpdateSounds(void)
@@ -2125,4 +2108,27 @@ void headlessDisableRendering()
    nodrawers = 1;
    nomusicparm = 1;
    nosfxparm = 1;
+}
+
+/// Headless functions
+
+void headlessClearTickCommand() { memset(local_cmds, 0, sizeof(ticcmd_t) * MAX_MAXPLAYERS); }
+void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, int turningSpeed, int fire, int action, int weapon)
+{
+  local_cmds[playerId].forwardmove = forwardSpeed;
+  local_cmds[playerId].sidemove    = strafingSpeed;
+  local_cmds[playerId].angleturn   = turningSpeed;
+
+  if (fire == 1)    local_cmds[playerId].buttons |= 0b00000001;
+  
+  if (action == 1)  local_cmds[playerId].buttons |= 0b00000010;
+
+  if (weapon == 0)  local_cmds[playerId].buttons |= 0b00000000;
+  if (weapon == 1)  local_cmds[playerId].buttons |= 0b00000100;
+  if (weapon == 2)  local_cmds[playerId].buttons |= 0b00001000;
+  if (weapon == 3)  local_cmds[playerId].buttons |= 0b00001100;
+  if (weapon == 4)  local_cmds[playerId].buttons |= 0b00010000;
+  if (weapon == 5)  local_cmds[playerId].buttons |= 0b00010100;
+  if (weapon == 6)  local_cmds[playerId].buttons |= 0b00011000;
+  if (weapon == 7)  local_cmds[playerId].buttons |= 0b00011100;
 }
