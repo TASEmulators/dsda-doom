@@ -89,7 +89,7 @@
 
 void I_uSleep(unsigned long usecs)
 {
-    SDL_Delay(usecs/1000);
+  //  SDL_Delay(usecs/1000); // Do not delay under any circumstance
 }
 
 static dboolean InDisplay = false;

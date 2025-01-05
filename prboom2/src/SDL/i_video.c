@@ -114,7 +114,7 @@ extern void M_QuitDOOM(int choice);
 int desired_fullscreen;
 int exclusive_fullscreen;
 SDL_Surface *screen;
-static SDL_Surface *buffer;
+SDL_Surface *buffer;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
 static SDL_Texture *sdl_texture;
@@ -1225,17 +1225,17 @@ void I_UpdateVideoMode(void)
   int screen_multiply;
   int actualheight;
   int render_vsync;
-  int integer_scaling;
-  const char *sdl_video_window_pos;
+  // int integer_scaling;
+  // const char *sdl_video_window_pos;
   const dboolean novsync = dsda_Flag(dsda_arg_timedemo) ||
                            dsda_Flag(dsda_arg_fastdemo);
 
   exclusive_fullscreen = dsda_IntConfig(dsda_config_exclusive_fullscreen) &&
                          I_DesiredVideoMode() == VID_MODESW;
   render_vsync = dsda_IntConfig(dsda_config_render_vsync) && !novsync;
-  sdl_video_window_pos = dsda_StringConfig(dsda_config_sdl_video_window_pos);
+  // sdl_video_window_pos = dsda_StringConfig(dsda_config_sdl_video_window_pos);
   screen_multiply = dsda_IntConfig(dsda_config_render_screen_multiply);
-  integer_scaling = dsda_IntConfig(dsda_config_integer_scaling);
+  // integer_scaling = dsda_IntConfig(dsda_config_integer_scaling);
 
   if(sdl_window)
   {
@@ -1298,6 +1298,7 @@ void I_UpdateVideoMode(void)
     }
   }
 
+    // For headless operation, prevent SDL from creating window
   if (V_IsOpenGLMode())
   {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
@@ -1317,57 +1318,57 @@ void I_UpdateVideoMode(void)
     //e6y: anti-aliasing
     gld_MultisamplingInit();
 
-    sdl_window = SDL_CreateWindow(
-      PACKAGE_NAME " " PACKAGE_VERSION,
-      SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-      SCREENWIDTH * screen_multiply, actualheight * screen_multiply,
-      init_flags);
-    sdl_glcontext = SDL_GL_CreateContext(sdl_window);
-    SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
+    // sdl_window = SDL_CreateWindow(
+    //   PACKAGE_NAME " " PACKAGE_VERSION,
+    //   SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    //   SCREENWIDTH * screen_multiply, actualheight * screen_multiply,
+    //   init_flags);
+    // sdl_glcontext = SDL_GL_CreateContext(sdl_window);
+    // SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
   }
   else
   {
-    int flags = SDL_RENDERER_TARGETTEXTURE;
+    // int flags = SDL_RENDERER_TARGETTEXTURE;
 
-    if (render_vsync)
-      flags |= SDL_RENDERER_PRESENTVSYNC;
+    // if (render_vsync)
+    //   flags |= SDL_RENDERER_PRESENTVSYNC;
 
-    sdl_window = SDL_CreateWindow(
-      PACKAGE_NAME " " PACKAGE_VERSION,
-      SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-      SCREENWIDTH * screen_multiply, actualheight * screen_multiply,
-      init_flags);
-    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
+    // sdl_window = SDL_CreateWindow(
+    //   PACKAGE_NAME " " PACKAGE_VERSION,
+    //   SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    //   SCREENWIDTH * screen_multiply, actualheight * screen_multiply,
+    //   init_flags);
+    // sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
 
-    SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
-    SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, actualheight);
+    // SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
+    // SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, actualheight);
 
-    // [FG] force integer scales
-    SDL_RenderSetIntegerScale(sdl_renderer, integer_scaling);
+    // // [FG] force integer scales
+    // SDL_RenderSetIntegerScale(sdl_renderer, integer_scaling);
 
     screen = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 8, 0, 0, 0, 0);
     buffer = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 32, 0, 0, 0, 0);
     SDL_FillRect(buffer, NULL, 0);
 
-    sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer, buffer);
+    // sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer, buffer);
 
-    if(screen == NULL) {
-      I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
-    }
+    // if(screen == NULL) {
+    //   I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
+    // }
   }
 
-  if (sdl_video_window_pos)
-  {
-    int x, y;
-    if (sscanf(sdl_video_window_pos, "%d,%d", &x, &y) == 2)
-    {
-      SDL_SetWindowPosition(sdl_window, x, y);
-    }
-    if (strcmp(sdl_video_window_pos, "center") == 0)
-    {
-      SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-    }
-  }
+  // if (sdl_video_window_pos)
+  // {
+  //   int x, y;
+  //   if (sscanf(sdl_video_window_pos, "%d,%d", &x, &y) == 2)
+  //   {
+  //     SDL_SetWindowPosition(sdl_window, x, y);
+  //   }
+  //   if (strcmp(sdl_video_window_pos, "center") == 0)
+  //   {
+  //     SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+  //   }
+  // }
 
   // Workaround for SDL 2.0.14 alt-tab bug (taken from Doom Retro)
 #if defined(_WIN32)
@@ -1629,3 +1630,11 @@ static void ApplyWindowResize(SDL_Event *resize_event)
   dsda_GLGetSDLWindowSize(sdl_window);
   dsda_GLSetRenderViewportParams();
 }
+
+/////////// Headless function
+
+void* headlessGetVideoBuffer() { return screens[0].data; }
+int headlessGetVideoPitch() { return screens[0].pitch; }
+int headlessGetVideoWidth() { return screens[0].width; }
+int headlessGetVideoHeight() { return screens[0].height; }
+SDL_Surface* headlessGetVideoSurface() { return buffer; }

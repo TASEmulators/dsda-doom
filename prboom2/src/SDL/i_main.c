@@ -263,7 +263,7 @@ void I_SetProcessPriority(void)
 }
 
 //int main(int argc, const char * const * argv)
-int main(int argc, char **argv)
+int _main(int argc, char **argv) // Renamed to allow linking this file to an application with a superseding main
 {
   dsda_ParseCommandLineArgs(argc, argv);
 
@@ -334,5 +334,49 @@ int main(int argc, char **argv)
   I_PreInitGraphics();
 
   D_DoomMain ();
+  return 0;
+}
+
+
+//////// Functions for headless operation
+
+extern void D_DoomMainSetup(); 
+
+//int main(int argc, const char * const * argv)
+// Headless main does not initialize SDL
+int headlessMain(int argc, char **argv)
+{
+  dsda_ParseCommandLineArgs(argc, argv);
+
+  if (dsda_Flag(dsda_arg_verbose))
+    I_EnableVerboseLogging();
+
+  if (dsda_Flag(dsda_arg_quiet))
+    I_DisableAllLogging();
+
+  // Print the version and exit
+  if (dsda_Flag(dsda_arg_v))
+  {
+    PrintVer();
+    return 0;
+  }
+
+  // e6y: Check for conflicts.
+  // Conflicting command-line parameters could cause the engine to be confused
+  // in some cases. Added checks to prevent this.
+  // Example: dsda-doom.exe -record mydemo -playdemo demoname
+  ParamsMatchingCheck();
+
+  // e6y: was moved from D_DoomMainSetup
+  // init subsystems
+  //jff 9/3/98 use logical output routine
+  lprintf(LO_DEBUG, "M_LoadDefaults: Load system defaults.\n");
+  M_LoadDefaults();              // load before initing other systems
+  lprintf(LO_DEBUG, "\n");
+
+  /* Version info */
+  PrintVer();
+
+  D_DoomMainSetup();
   return 0;
 }

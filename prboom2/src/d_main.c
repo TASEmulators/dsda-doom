@@ -517,11 +517,13 @@ void D_Display (fixed_t frac)
 
   // e6y
   // Don't thrash cpu during pausing or if the window doesnt have focus
-  if (dsda_CameraPaused()) {
-    I_uSleep(5000);
-  }
+  // Do not limit FPS
+  
+  // if (dsda_CameraPaused()) {
+  //   I_uSleep(5000);
+  // }
 
-  dsda_LimitFPS();
+  // dsda_LimitFPS();
 
   I_EndDisplay();
 }
@@ -1669,7 +1671,7 @@ static void EvaluateDoomVerStr(void)
 // CPhipps - the old contents of D_DoomMain, but moved out of the main
 //  line of execution so its stack space can be freed
 
-static void D_DoomMainSetup(void)
+void D_DoomMainSetup(void)
 {
   int p;
   dsda_arg_t *arg;
@@ -2044,4 +2046,69 @@ void D_DoomMain(void)
   D_DoomMainSetup(); // CPhipps - setup out of main execution stack
 
   D_DoomLoop ();  // never returns
+}
+
+
+/// Functions for headless execution
+
+void headlessRunSingleTick(void)
+{
+  // if (dsda_IntConfig(dsda_config_startup_delay_ms) > 0)
+  //   I_uSleep(dsda_IntConfig(dsda_config_startup_delay_ms) * 1000);
+
+  if (I_Interrupted())
+    I_SafeExit(0);
+
+  WasRenderedInTryRunTics = false;
+  // frame syncronous IO operations
+  I_StartFrame ();
+
+  // process one or more tics
+  I_StartTic ();
+  G_BuildTiccmd (&local_cmds[consoleplayer][maketic%BACKUPTICS]);
+  if (advancedemo)
+    D_DoAdvanceDemo ();
+  M_Ticker ();
+  G_Ticker ();
+  gametic++;
+  maketic++;
+}
+
+void headlessUpdateSounds(void)
+{
+  // killough 3/16/98: change consoleplayer to displayplayer
+  if (players[displayplayer].mo) // cph 2002/08/10
+    S_UpdateSounds();// move positional sounds
+}
+
+void headlessUpdateVideo(void)
+{
+  // Update display, next frame, with current state.
+  // NSM
+  if (capturing_video && !dsda_SkipMode())
+  {
+    dboolean first = true;
+    int cap_step = TICRATE * FRACUNIT / cap_fps;
+    cap_frac += cap_step;
+    while(cap_frac <= FRACUNIT)
+    {
+      isExtraDDisplay = !first;
+      first = false;
+
+      if (gamestate == wipegamestate || cap_wipescreen)
+      {
+        I_QueueFrameCapture();
+      }
+
+      D_Display(cap_frac);
+
+      isExtraDDisplay = false;
+      cap_frac += cap_step;
+    }
+    cap_frac -= FRACUNIT + cap_step;
+  }
+  else
+  {
+    D_Display(-1);
+  }
 }
