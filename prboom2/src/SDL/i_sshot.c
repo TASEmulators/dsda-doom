@@ -38,12 +38,6 @@
 
 #include <stdlib.h>
 
-#include "SDL.h"
-
-#ifdef HAVE_LIBSDL2_IMAGE
-#include <SDL_image.h>
-#endif
-
 #include "doomstat.h"
 #include "doomdef.h"
 #include "doomtype.h"

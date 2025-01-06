@@ -40,16 +40,16 @@
 #include <unistd.h>
 #endif
 
-#include "SDL.h"
-#include "SDL_audio.h"
-#include "SDL_mutex.h"
+// #include "SDL.h"
+// #include "SDL_audio.h"
+// #include "SDL_mutex.h"
 
-#include "SDL_endian.h"
+// #include "SDL_endian.h"
 
-#include "SDL_version.h"
-#include "SDL_thread.h"
-#define USE_RWOPS
-#include "SDL_mixer.h"
+// #include "SDL_version.h"
+// #include "SDL_thread.h"
+// #define USE_RWOPS
+// #include "SDL_mixer.h"
 
 #include "z_zone.h"
 
@@ -122,9 +122,9 @@ static int dumping_sound = 0;
 
 
 // lock for updating any params related to sfx
-SDL_mutex *sfxmutex;
+// SDL_mutex *sfxmutex;
 // lock for updating any params related to music
-SDL_mutex *musmutex;
+// SDL_mutex *musmutex;
 
 static int pitched_sounds;
 int snd_samplerate; // samples per second
@@ -195,47 +195,47 @@ static wav_data_t *GetWavData(int sfxid, const unsigned char *data, size_t len)
   if (target == NULL &&
       len > 44 && !memcmp(data, "RIFF", 4) && !memcmp(data + 8, "WAVEfmt ", 8))
   {
-    SDL_RWops *RWops;
-    SDL_AudioSpec wav_spec;
-    Uint8 *wav_buffer = NULL;
+    // SDL_RWops *RWops;
+    // SDL_AudioSpec wav_spec;
+    uint8_t *wav_buffer = NULL;
     int bits, samplelen;
 
-    RWops = SDL_RWFromConstMem(data, len);
+    // RWops = SDL_RWFromConstMem(data, len);
 
-    if (SDL_LoadWAV_RW(RWops, 1, &wav_spec, &wav_buffer, &samplelen) == NULL)
-    {
-      lprintf(LO_WARN, "Could not open wav file: %s\n", SDL_GetError());
-      return NULL;
-    }
+    // if (SDL_LoadWAV_RW(RWops, 1, &wav_spec, &wav_buffer, &samplelen) == NULL)
+    // {
+    //   lprintf(LO_WARN, "Could not open wav file: %s\n", SDL_GetError());
+    //   return NULL;
+    // }
 
-    if (wav_spec.channels != 1)
-    {
-      lprintf(LO_WARN, "Only mono WAV file is supported");
-      SDL_FreeWAV(wav_buffer);
-      return NULL;
-    }
+    // if (wav_spec.channels != 1)
+    // {
+    //   lprintf(LO_WARN, "Only mono WAV file is supported");
+    //   SDL_FreeWAV(wav_buffer);
+    //   return NULL;
+    // }
 
-    if (!SDL_AUDIO_ISINT(wav_spec.format))
-    {
-      lprintf(LO_WARN, "WAV file in unsupported format");
-      SDL_FreeWAV(wav_buffer);
-      return NULL;
-    }
+    // if (!SDL_AUDIO_ISINT(wav_spec.format))
+    // {
+    //   lprintf(LO_WARN, "WAV file in unsupported format");
+    //   SDL_FreeWAV(wav_buffer);
+    //   return NULL;
+    // }
 
-    bits = SDL_AUDIO_BITSIZE(wav_spec.format);
-    if (bits != 8 && bits != 16)
-    {
-      lprintf(LO_WARN, "Only 8 or 16 bit WAV files are supported");
-      SDL_FreeWAV(wav_buffer);
-      return NULL;
-    }
+    // bits = SDL_AUDIO_BITSIZE(wav_spec.format);
+    // if (bits != 8 && bits != 16)
+    // {
+    //   lprintf(LO_WARN, "Only 8 or 16 bit WAV files are supported");
+    //   SDL_FreeWAV(wav_buffer);
+    //   return NULL;
+    // }
 
     target = Z_Malloc(sizeof(*target));
 
     target->sfxid = sfxid;
     target->data = wav_buffer;
     target->samplelen = samplelen;
-    target->samplerate = wav_spec.freq;
+    // target->samplerate = wav_spec.freq;
     target->bits = bits;
 
     // use head insertion
@@ -371,9 +371,9 @@ static void updateSoundParams(int handle, sfx_params_t *params)
 
 void I_UpdateSoundParams(int handle, sfx_params_t *params)
 {
-  SDL_LockMutex (sfxmutex);
+  // SDL_LockMutex (sfxmutex);
   updateSoundParams(handle, params);
-  SDL_UnlockMutex (sfxmutex);
+  // SDL_UnlockMutex (sfxmutex);
 }
 
 //
@@ -479,13 +479,13 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
   // not in a memory mapped one
   data = (const unsigned char *)W_LockLumpNum(lump);
 
-  SDL_LockMutex (sfxmutex);
+  // SDL_LockMutex (sfxmutex);
 
   // Returns a handle (not used).
   addsfx(id, channel, data, len);
   updateSoundParams(channel, params);
 
-  SDL_UnlockMutex (sfxmutex);
+  // SDL_UnlockMutex (sfxmutex);
 
 
   return channel;
@@ -500,9 +500,9 @@ void I_StopSound (int handle)
     I_Error("I_StopSound: handle out of range");
 #endif
 
-  SDL_LockMutex (sfxmutex);
+  // SDL_LockMutex (sfxmutex);
   stopchan(handle);
-  SDL_UnlockMutex (sfxmutex);
+  // SDL_UnlockMutex (sfxmutex);
 }
 
 
@@ -543,7 +543,7 @@ dboolean I_AnySoundStillPlaying(void)
 
 static void UpdateMusic (void *buff, unsigned nsamp);
 
-static void I_UpdateSound(void *unused, Uint8 *stream, int len)
+static void I_UpdateSound(void *unused, uint8_t *stream, int len)
 {
   // Mix current sound data.
   // Data, from raw sound, for right and left.
@@ -572,12 +572,12 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   // do music update
   if (registered_non_rw)
   {
-    SDL_LockMutex (musmutex);
+    // SDL_LockMutex (musmutex);
     UpdateMusic (stream, len / 4);
-    SDL_UnlockMutex (musmutex);
+    // SDL_UnlockMutex (musmutex);
   }
 
-  SDL_LockMutex (sfxmutex);
+  // SDL_LockMutex (sfxmutex);
   // Left and right channel
   //  are in audio stream, alternating.
   leftout = (signed short *)stream;
@@ -688,7 +688,7 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
     leftout += step;
     rightout += step;
   }
-  SDL_UnlockMutex (sfxmutex);
+  // SDL_UnlockMutex (sfxmutex);
 }
 
 static dboolean sound_was_initialized;
@@ -697,16 +697,16 @@ void I_ShutdownSound(void)
 {
   if (sound_was_initialized)
   {
-    Mix_CloseAudio();
-    SDL_CloseAudio();
+    // Mix_CloseAudio();
+    // SDL_CloseAudio();
 
     sound_was_initialized = false;
 
-    if (sfxmutex)
-    {
-      SDL_DestroyMutex (sfxmutex);
-      sfxmutex = NULL;
-    }
+    // if (sfxmutex)
+    // {
+    //   // SDL_DestroyMutex (sfxmutex);
+    //   sfxmutex = NULL;
+    // }
   }
 }
 
@@ -719,13 +719,13 @@ void I_InitSound(void)
   if (sound_was_initialized || (nomusicparm && nosfxparm))
     return;
 
-  if (SDL_InitSubSystem(SDL_INIT_AUDIO))
-  {
-    lprintf(LO_WARN, "Couldn't initialize SDL audio (%s))\n", SDL_GetError());
-    nosfxparm = true;
-    nomusicparm = true;
-    return;
-  }
+  // if (SDL_InitSubSystem(SDL_INIT_AUDIO))
+  // {
+  //   lprintf(LO_WARN, "Couldn't initialize SDL audio (%s))\n", SDL_GetError());
+  //   nosfxparm = true;
+  //   nomusicparm = true;
+  //   return;
+  // }
 
   // Secure and configure sound device first.
   lprintf(LO_DEBUG, "I_InitSound: ");
@@ -736,33 +736,33 @@ void I_InitSound(void)
   audio_channels = 2;
   audio_buffers = getSliceSize();
 
-  if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers,
-                          NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
-  {
-    lprintf(LO_DEBUG, "couldn't open audio with desired format (%s)\n", SDL_GetError());
-    nosfxparm = true;
-    nomusicparm = true;
-    return;
-  }
+  // if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers,
+  //                         NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
+  // {
+  //   lprintf(LO_DEBUG, "couldn't open audio with desired format (%s)\n", SDL_GetError());
+  //   nosfxparm = true;
+  //   nomusicparm = true;
+  //   return;
+  // }
 
   // [FG] feed actual sample frequency back into config variable
-  Mix_QuerySpec(&snd_samplerate, NULL, NULL);
+  // Mix_QuerySpec(&snd_samplerate, NULL, NULL);
 
   sound_was_initialized = true;
 
-  Mix_SetPostMix(I_UpdateSound, NULL);
+  // Mix_SetPostMix(I_UpdateSound, NULL);
 
   lprintf(LO_DEBUG, " configured audio device with %d samples/slice\n", audio_buffers);
 
   I_AtExit(I_ShutdownSound, true, "I_ShutdownSound", exit_priority_normal);
 
-  sfxmutex = SDL_CreateMutex ();
+  // sfxmutex = SDL_CreateMutex ();
 
   if (!nomusicparm)
     I_InitMusic();
 
   lprintf(LO_DEBUG, "I_InitSound: sound module ready\n");
-  SDL_PauseAudio(0);
+  // SDL_PauseAudio(0);
 }
 
 
@@ -867,11 +867,11 @@ static void PlaySong(int handle, int looping);
 #include "MUSIC/vorbisplayer.h"
 #include "MUSIC/portmidiplayer.h"
 
-static Mix_Music *music[2] = { NULL, NULL };
+// static Mix_Music *music[2] = { NULL, NULL };
 
 // Some tracks are directly streamed from the RWops;
 // we need to free them in the end
-static SDL_RWops *rwops_stream = NULL;
+// static SDL_RWops *rwops_stream = NULL;
 
 // note that the "handle" passed around by s_sound is ignored
 // however, a handle is maintained for the individual music players
@@ -929,17 +929,17 @@ void I_ShutdownMusic(void)
       music_players[i]->shutdown ();
   }
 
-  if (musmutex)
-  {
-    SDL_DestroyMutex (musmutex);
-    musmutex = NULL;
-  }
+  // if (musmutex)
+  // {
+  //   SDL_DestroyMutex (musmutex);
+  //   musmutex = NULL;
+  // }
 }
 
 void I_InitMusic(void)
 {
   int i;
-  musmutex = SDL_CreateMutex ();
+  // musmutex = SDL_CreateMutex ();
 
   // todo not so greedy
   for (i = 0; music_players[i]; i++)
@@ -963,13 +963,13 @@ void I_ResetMusicVolume(void)
   else
     music_volume = snd_MusicVolume;
 
-  Mix_VolumeMusic(music_volume * 8);
+  // Mix_VolumeMusic(music_volume * 8);
 
   if (music_handle)
   {
-    SDL_LockMutex(musmutex);
+    // SDL_LockMutex(musmutex);
     music_players[current_player]->setvolume(music_volume);
-    SDL_UnlockMutex(musmutex);
+    // SDL_UnlockMutex(musmutex);
   }
 }
 
@@ -981,13 +981,13 @@ void I_PlaySong(int handle, int looping)
     return;
   }
 
-  if ( music[handle] ) {
+  // if ( music[handle] ) {
     //Mix_FadeInMusic(music[handle], looping ? -1 : 0, 500);
-    Mix_PlayMusic(music[handle], looping ? -1 : 0);
+    // Mix_PlayMusic(music[handle], looping ? -1 : 0);
 
     // haleyjd 10/28/05: make sure volume settings remain consistent
-    I_ResetMusicVolume();
-  }
+    // I_ResetMusicVolume();
+  // }
 }
 
 void I_PauseSong (int handle)
@@ -1004,14 +1004,14 @@ void I_PauseSong (int handle)
         I_StopSong(handle);
       break;
     case 1:
-      switch (Mix_GetMusicType(NULL))
-      {
-        case MUS_NONE:
-          break;
-        default:
-          Mix_PauseMusic();
-          break;
-      }
+      // switch (Mix_GetMusicType(NULL))
+      // {
+      //   case MUS_NONE:
+      //     break;
+      //   default:
+      //     Mix_PauseMusic();
+      //     break;
+      // }
       break;
   }
   // Default - let music continue
@@ -1030,15 +1030,15 @@ void I_ResumeSong (int handle)
         I_PlaySong(handle,1);
       break;
     case 1:
-      switch (Mix_GetMusicType(NULL))
-      {
-        case MUS_NONE:
-          break;
-        default:
-          Mix_ResumeMusic();
-          break;
-      }
-      break;
+      // switch (Mix_GetMusicType(NULL))
+      // {
+      //   case MUS_NONE:
+      //     break;
+      //   default:
+      //     Mix_ResumeMusic();
+      //     break;
+      // }
+      // break;
   }
   /* Otherwise, music wasn't stopped */
 }
@@ -1052,7 +1052,7 @@ void I_StopSong(int handle)
   }
 
   // halt music playback
-  Mix_HaltMusic();
+  // Mix_HaltMusic();
 }
 
 void I_UnRegisterSong(int handle)
@@ -1063,17 +1063,17 @@ void I_UnRegisterSong(int handle)
     return;
   }
 
-  if ( music[handle] ) {
-    Mix_FreeMusic(music[handle]);
-    music[handle] = NULL;
+  // if ( music[handle] ) {
+    // Mix_FreeMusic(music[handle]);
+    // music[handle] = NULL;
 
     // Free RWops
-    if (rwops_stream != NULL)
-    {
-      //SDL_FreeRW(rwops_stream);
-      rwops_stream = NULL;
-    }
-  }
+    // if (rwops_stream != NULL)
+    // {
+    //   //SDL_FreeRW(rwops_stream);
+    //   rwops_stream = NULL;
+    // }
+  // }
 }
 
 int I_RegisterSong(const void *data, size_t len)
@@ -1088,25 +1088,25 @@ int I_RegisterSong(const void *data, size_t len)
   // http://www.doomworld.com/idgames/index.php?id=8808
   // Ability to use mp3 and ogg as inwad lump
 
-  music[0] = NULL;
+  // music[0] = NULL;
 
-  rwops_stream = SDL_RWFromConstMem(data, len);
-  if (rwops_stream)
-  {
-    music[0] = Mix_LoadMUS_RW(rwops_stream, SDL_FALSE);
-  }
+  // rwops_stream = SDL_RWFromConstMem(data, len);
+  // if (rwops_stream)
+  // {
+  //   // music[0] = Mix_LoadMUS_RW(rwops_stream, SDL_FALSE);
+  // }
 
   // Failed to load
-  if (!music[0])
+  // if (!music[0])
   {
-    // Conversion failed, free everything
-    if (rwops_stream != NULL)
-    {
-      //SDL_FreeRW(rwops_stream);
-      rwops_stream = NULL;
-    }
+    // // Conversion failed, free everything
+    // if (rwops_stream != NULL)
+    // {
+    //   //SDL_FreeRW(rwops_stream);
+    //   rwops_stream = NULL;
+    // }
 
-    lprintf(LO_ERROR, "Error loading song: %s\n", Mix_GetError());
+    // lprintf(LO_ERROR, "Error loading song: %s\n", Mix_GetError());
   }
 
   return (0);
@@ -1116,10 +1116,10 @@ static void PlaySong(int handle, int looping)
 {
   if (music_handle)
   {
-    SDL_LockMutex (musmutex);
+    // SDL_LockMutex (musmutex);
     music_players[current_player]->play (music_handle, looping);
     music_players[current_player]->setvolume (music_volume);
-    SDL_UnlockMutex (musmutex);
+    // SDL_UnlockMutex (musmutex);
   }
 }
 
@@ -1128,7 +1128,7 @@ static void PauseSong (int handle)
   if (!music_handle)
     return;
 
-  SDL_LockMutex (musmutex);
+  // SDL_LockMutex (musmutex);
   switch (dsda_IntConfig(dsda_config_mus_pause_opt))
   {
     case 0:
@@ -1140,7 +1140,7 @@ static void PauseSong (int handle)
     default: // Default - let music continue
       break;
   }
-  SDL_UnlockMutex (musmutex);
+  // SDL_UnlockMutex (musmutex);
 }
 
 static void ResumeSong (int handle)
@@ -1148,29 +1148,29 @@ static void ResumeSong (int handle)
   if (!music_handle)
     return;
 
-  SDL_LockMutex (musmutex);
+  // SDL_LockMutex (musmutex);
   switch (dsda_IntConfig(dsda_config_mus_pause_opt))
   {
     case 0: // i'm not sure why we can guarantee looping=true here,
             // but that's what the old code did
       music_players[current_player]->play (music_handle, 1);
-      break;
+      break; 
     case 1:
       music_players[current_player]->resume ();
       break;
     default: // Default - music was never stopped
       break;
   }
-  SDL_UnlockMutex (musmutex);
+  // SDL_UnlockMutex (musmutex);
 }
 
 static void StopSong(int handle)
 {
   if (music_handle)
   {
-    SDL_LockMutex (musmutex);
+    // SDL_LockMutex (musmutex);
     music_players[current_player]->stop ();
-    SDL_UnlockMutex (musmutex);
+    // SDL_UnlockMutex (musmutex);
   }
 }
 
@@ -1178,7 +1178,7 @@ static void UnRegisterSong(int handle)
 {
   if (music_handle)
   {
-    SDL_LockMutex (musmutex);
+    // SDL_LockMutex (musmutex);
     music_players[current_player]->unregistersong (music_handle);
     music_handle = NULL;
     if (mus2mid_conversion_data)
@@ -1186,7 +1186,7 @@ static void UnRegisterSong(int handle)
       Z_Free (mus2mid_conversion_data);
       mus2mid_conversion_data = NULL;
     }
-    SDL_UnlockMutex (musmutex);
+    // SDL_UnlockMutex (musmutex);
   }
 }
 
@@ -1230,10 +1230,10 @@ static int RegisterSongEx (const void *data, size_t len, int try_mus2mid)
             const void *temp_handle = music_players[i]->registersong (data, len);
             if (temp_handle)
             {
-              SDL_LockMutex (musmutex);
+              // SDL_LockMutex (musmutex);
               current_player = i;
               music_handle = temp_handle;
-              SDL_UnlockMutex (musmutex);
+              // SDL_UnlockMutex (musmutex);
               lprintf(LO_DEBUG, "RegisterSongEx: Using player %s\n", music_players[i]->name ());
               return 1;
             }

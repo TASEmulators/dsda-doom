@@ -89,7 +89,6 @@
 
 void I_uSleep(unsigned long usecs)
 {
-  //  SDL_Delay(usecs/1000); // Do not delay under any circumstance
 }
 
 static dboolean InDisplay = false;
@@ -407,10 +406,7 @@ dboolean HasTrailingSlash(const char* dn)
 
 static const char *I_GetBasePath(void)
 {
-  static char *executable_dir;
-  /* SDL_GetBasePath is an expensive call */
-  if (!executable_dir)
-    executable_dir = SDL_GetBasePath();
+  static char *executable_dir = "";
   return executable_dir;
 }
 
