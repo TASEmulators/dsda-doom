@@ -2082,3 +2082,8 @@ void headlessSetSaveStatePointer(void* savePtr, int saveStateSize)
   savebuffer = savePtr;
   savegamesize = saveStateSize;
 }
+
+size_t headlessGetEffectiveSaveSize()
+{ 
+  return (size_t)save_p - (size_t)savebuffer;
+}
