@@ -201,3 +201,7 @@ void dsda_InitPlayPal(void) {
     }
   }
 }
+
+//// Headless function to get paletter
+
+uint32_t* headlessGetPallette() { return (uint32_t*) playpal_data[playpal_index].colours; }
