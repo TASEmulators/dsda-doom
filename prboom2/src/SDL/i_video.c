@@ -115,77 +115,11 @@ SDL_Surface *buffer;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
 unsigned int windowid = 0;
-SDL_Rect src_rect = { 0, 0, 0, 0 };
-
-////////////////////////////////////////////////////////////////////////////
-// Input code
-int             leds_always_off = 0; // Expected by m_misc, not relevant
-
-// Mouse handling
-static dboolean mouse_enabled; // usemouse, but can be overriden by -nomouse
-
-/////////////////////////////////////////////////////////////////////////////////
-// Keyboard handling
-
-// Vanilla keymap taken from chocolate-doom and adjusted for prboom-plus
-#define SCANCODE_TO_KEYS_ARRAY {                                          \
-  0,   0,   0,   0,   'a',                                  /* 0-9 */     \
-  'b', 'c', 'd', 'e', 'f',                                                \
-  'g', 'h', 'i', 'j', 'k',                                  /* 10-19 */   \
-  'l', 'm', 'n', 'o', 'p',                                                \
-  'q', 'r', 's', 't', 'u',                                  /* 20-29 */   \
-  'v', 'w', 'x', 'y', 'z',                                                \
-  '1', '2', '3', '4', '5',                                  /* 30-39 */   \
-  '6', '7', '8', '9', '0',                                                \
-  KEYD_ENTER, KEYD_ESCAPE, KEYD_BACKSPACE, KEYD_TAB, ' ',   /* 40-49 */   \
-  KEYD_MINUS, KEYD_EQUALS, '[', ']', '\\',                                \
-  '\\', ';', '\'', '`', ',',                                /* 50-59 */   \
-  '.', '/', KEYD_CAPSLOCK, KEYD_F1, KEYD_F2,                              \
-  KEYD_F3, KEYD_F4, KEYD_F5, KEYD_F6, KEYD_F7,              /* 60-69 */   \
-  KEYD_F8, KEYD_F9, KEYD_F10, KEYD_F11, KEYD_F12, KEYD_PRINTSC,           \
-  KEYD_SCROLLLOCK, KEYD_PAUSE, KEYD_INSERT, KEYD_HOME,      /* 70-79 */   \
-  KEYD_PAGEUP, KEYD_DEL, KEYD_END, KEYD_PAGEDOWN, KEYD_RIGHTARROW,        \
-  KEYD_LEFTARROW, KEYD_DOWNARROW, KEYD_UPARROW,             /* 80-89 */   \
-  KEYD_NUMLOCK, KEYD_KEYPADDIVIDE,                                        \
-  KEYD_KEYPADMULTIPLY, KEYD_KEYPADMINUS, KEYD_KEYPADPLUS,                 \
-  KEYD_KEYPADENTER, KEYD_KEYPAD1, KEYD_KEYPAD2, KEYD_KEYPAD3,             \
-  KEYD_KEYPAD4, KEYD_KEYPAD5, KEYD_KEYPAD6,                 /* 90-99 */   \
-  KEYD_KEYPAD7, KEYD_KEYPAD8, KEYD_KEYPAD9, KEYD_KEYPAD0,                 \
-  KEYD_KEYPADPERIOD, 0, 0, 0, KEYD_EQUALS                   /* 100-103 */ \
-}
 
 // Map keys like vanilla doom
 static int VanillaTranslateKey(SDL_Keysym* key)
 {
-  static const int scancode_map[] = SCANCODE_TO_KEYS_ARRAY;
-  int rc = 0, sc = key->scancode;
-
-  if (sc > 3 && sc < sizeof(scancode_map) / sizeof(scancode_map[0]))
-    rc = scancode_map[sc];
-
-  // Key is mapped..
-  if (rc)
-    return rc;
-
-  switch (sc) { // Code (Ctrl/Shift/Alt) from scancode.
-    case SDL_SCANCODE_LSHIFT:
-    case SDL_SCANCODE_RSHIFT:
-      return KEYD_RSHIFT;
-
-    case SDL_SCANCODE_LCTRL:
-    case SDL_SCANCODE_RCTRL:
-      return KEYD_RCTRL;
-
-    case SDL_SCANCODE_LALT:
-    case SDL_SCANCODE_RALT:
-    case SDL_SCANCODE_LGUI:
-    case SDL_SCANCODE_RGUI:
-      return KEYD_RALT;
-
-    // Default to the symbolic key (outside of vanilla keys)
-    default:
-      return key->sym;
-  }
+  return 0;
 }
 
 //
@@ -1045,9 +979,6 @@ void I_UpdateVideoMode(void)
 
   ST_SetResolution();
   AM_SetResolution();
-
-  src_rect.w = SCREENWIDTH;
-  src_rect.h = SCREENHEIGHT;
 }
 
 static void ActivateMouse(void)
@@ -1096,59 +1027,11 @@ static void CorrectMouseStutter(int *x, int *y)
 // motion event.
 static void I_ReadMouse(void)
 {
-  if (!mouse_enabled)
-    return;
-
-  if (window_focused)
-  {
-    int x, y;
-
-    SDL_GetRelativeMouseState(&x, &y);
-    CorrectMouseStutter(&x, &y);
-
-    if (x != 0 || y != 0)
-    {
-      event_t event;
-      event.type = ev_mousemotion;
-      event.data1.i = x;
-      event.data2.i = -y;
-
-      D_PostEvent(&event);
-    }
-  }
 }
 
 static dboolean MouseShouldBeGrabbed()
 {
-  // never grab the mouse when in screensaver mode
-
-  //if (screensaver_mode)
-  //    return false;
-
-  // if the window doesnt have focus, never grab it
-  if (!window_focused)
-    return false;
-
-  // always grab the mouse when full screen (dont want to
-  // see the mouse pointer)
-  if (desired_fullscreen)
-    return true;
-
-  // if we specify not to grab the mouse, never grab
-  if (!mouse_enabled)
-    return false;
-
-  // always grab the mouse in camera mode when playing levels
-  // and menu is not active
-  if (walkcamera.type)
-    return (demoplayback && gamestate == GS_LEVEL && !menuactive);
-
-  // when menu is active or game is paused, release the mouse
-  if (menuactive || dsda_Paused())
-    return false;
-
-  // only grab mouse when playing levels (but not demos)
-  return !demoplayback;
+  return 0;
 }
 
 // Update the value of window_focused when we get a focus event
@@ -1158,59 +1041,14 @@ static dboolean MouseShouldBeGrabbed()
 // and we dont move the mouse around if we aren't focused either.
 static void UpdateFocus(void)
 {
-  Uint32 flags = 0;
-
-  window_focused = false;
-  if(sdl_window)
-  {
-    flags = SDL_GetWindowFlags(sdl_window);
-    if ((flags & SDL_WINDOW_SHOWN) && !(flags & SDL_WINDOW_MINIMIZED) && (flags & SDL_WINDOW_INPUT_FOCUS))
-    {
-      window_focused = true;
-    }
-  }
-
-  // e6y
-  // Reuse of a current palette to avoid black screen at software fullscreen modes
-  // after switching to OS and back
-  if (desired_fullscreen && window_focused)
-  {
-    V_TouchPalette();
-  }
-
-  S_ResetVolume();
 }
 
 void UpdateGrab(void)
 {
-  static dboolean currently_grabbed = false;
-  dboolean grab;
-
-  grab = MouseShouldBeGrabbed();
-
-  if (grab && !currently_grabbed)
-  {
-    ActivateMouse();
-  }
-
-  if (!grab && currently_grabbed)
-  {
-    DeactivateMouse();
-  }
-
-  currently_grabbed = grab;
 }
 
 static void ApplyWindowResize(SDL_Event *resize_event)
 {
-  if (!V_IsOpenGLMode() || !sdl_window)
-    return;
-
-
-#ifdef __ENABLE_OPENGL_
-  dsda_GLGetSDLWindowSize(sdl_window);
-  dsda_GLSetRenderViewportParams();
-  #endif
 }
 
 /////////// Headless function
@@ -1219,4 +1057,3 @@ void* headlessGetVideoBuffer() { return screens[0].data; }
 int headlessGetVideoPitch() { return screens[0].pitch; }
 int headlessGetVideoWidth() { return screens[0].width; }
 int headlessGetVideoHeight() { return screens[0].height; }
-SDL_Surface* headlessGetVideoSurface() { return buffer; }
