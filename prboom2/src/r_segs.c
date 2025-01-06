@@ -39,8 +39,6 @@
 
 #include <math.h>
 
-#include "SDL.h"
-
 #include "doomstat.h"
 #include "p_spec.h"
 #include "r_main.h"

@@ -28,9 +28,6 @@
  *---------------------------------------------------------------------
  */
 
-#include "SDL.h"
-#include "SDL_thread.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "i_sound.h"
@@ -51,9 +48,7 @@ typedef struct
   FILE *f_stdin;
   FILE *f_stdout;
   FILE *f_stderr;
-  SDL_Thread *outthread;
   const char *stdoutdumpname;
-  SDL_Thread *errthread;
   const char *stderrdumpname;
   void *user;
 } pipeinfo_t;
@@ -542,15 +537,6 @@ void I_CapturePrep (const char *fn)
   lprintf (LO_INFO, "I_CapturePrep: video capture started\n");
   capturing_video = 1;
 
-  // start reader threads
-  soundpipe.stdoutdumpname = "sound_stdout.txt";
-  soundpipe.stderrdumpname = "sound_stderr.txt";
-  soundpipe.outthread = SDL_CreateThread (threadstdoutproc, "soundpipe.outthread", &soundpipe);
-  soundpipe.errthread = SDL_CreateThread (threadstderrproc, "soundpipe.errthread", &soundpipe);
-  videopipe.stdoutdumpname = "video_stdout.txt";
-  videopipe.stderrdumpname = "video_stderr.txt";
-  videopipe.outthread = SDL_CreateThread (threadstdoutproc, "videopipe.outthread", &videopipe);
-  videopipe.errthread = SDL_CreateThread (threadstderrproc, "videopipe.errthread", &videopipe);
 
   I_AtExit (I_CaptureFinish, true, "I_CaptureFinish", exit_priority_normal);
 }
@@ -611,12 +597,6 @@ void I_CaptureFinish (void)
 
   // (on windows, it doesn't matter what order we do it in)
   my_pclose3 (&videopipe);
-  SDL_WaitThread (videopipe.outthread, &s);
-  SDL_WaitThread (videopipe.errthread, &s);
-
-  my_pclose3 (&soundpipe);
-  SDL_WaitThread (soundpipe.outthread, &s);
-  SDL_WaitThread (soundpipe.errthread, &s);
 
   // muxing and temp file cleanup
 
@@ -630,12 +610,6 @@ void I_CaptureFinish (void)
 
   muxpipe.stdoutdumpname = "mux_stdout.txt";
   muxpipe.stderrdumpname = "mux_stderr.txt";
-  muxpipe.outthread = SDL_CreateThread (threadstdoutproc, "muxpipe.outthread", &muxpipe);
-  muxpipe.errthread = SDL_CreateThread (threadstderrproc, "muxpipe.errthread", &muxpipe);
-
-  my_pclose3 (&muxpipe);
-  SDL_WaitThread (muxpipe.outthread, &s);
-  SDL_WaitThread (muxpipe.errthread, &s);
 
 
   // unlink any files user wants gone

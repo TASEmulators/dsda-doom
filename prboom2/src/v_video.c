@@ -40,7 +40,6 @@
 #endif
 
 #include <assert.h>
-#include "SDL.h"
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -1046,12 +1045,6 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
     }
   }
 }
-
-extern SDL_Surface *screen;
-#define RGB2COLOR(r, g, b)\
-  ((r >> screen->format->Rloss) << screen->format->Rshift) |\
-  ((g >> screen->format->Gloss) << screen->format->Gshift) |\
-  ((b >> screen->format->Bloss) << screen->format->Bshift)\
 
 // Given 65536, we need 2048; 65536 / 2048 == 32 == 2^5
 // Why 2048? ANG90 == 0x40000000 which >> 19 == 0x800 == 2048.

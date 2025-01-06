@@ -47,8 +47,6 @@
 
 #include <stdio.h>
 
-#include "SDL.h"
-
 #include "doomdef.h"
 #include "doomstat.h"
 #include "dstrings.h"
@@ -5983,12 +5981,6 @@ void M_ChangeMenu(menu_t *menudef, menuactive_t mnact)
   if (mnact > mnact_inactive && gamestate == GS_LEVEL)
     dsda_TrackFeature(uf_menu);
 
-  if (SDL_IsTextInputActive()) {
-    if (!(currentMenu && currentMenu->flags & MENUF_TEXTINPUT))
-      SDL_StopTextInput();
-  }
-  else if (currentMenu && currentMenu->flags & MENUF_TEXTINPUT)
-    SDL_StartTextInput();
 }
 
 //

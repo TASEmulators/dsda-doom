@@ -48,8 +48,6 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include "SDL.h"
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

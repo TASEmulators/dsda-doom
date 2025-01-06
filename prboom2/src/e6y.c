@@ -40,18 +40,6 @@
 #include <direct.h>
 #include <winreg.h>
 #endif
-#include <SDL_opengl.h>
-#include <string.h>
-#include <math.h>
-
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-
-#include "SDL.h"
-#ifdef _WIN32
-#include <SDL_syswm.h>
-#endif
 
 #include "hu_lib.h"
 
@@ -90,6 +78,7 @@
 #include "dsda/playback.h"
 #include "dsda/skip.h"
 #include "dsda/stretch.h"
+#include <math.h>
 
 dboolean wasWiped = false;
 
@@ -747,7 +736,6 @@ int HU_DrawDemoProgress(int force)
 
     // Unnecessary updates of progress bar
     // can slow down demo skipping and playback
-    tick = SDL_GetTicks();
     if (tick - last_update < max_period)
       return false;
     last_update = tick;

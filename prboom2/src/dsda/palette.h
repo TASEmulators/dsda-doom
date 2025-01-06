@@ -18,7 +18,13 @@
 #ifndef __DSDA_PALETTE__
 #define __DSDA_PALETTE__
 
-#include "SDL.h"
+typedef struct SDL_Color
+{
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+} SDL_Color;
 
 typedef enum {
   playpal_default,

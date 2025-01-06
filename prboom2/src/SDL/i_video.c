@@ -115,7 +115,7 @@ dboolean I_WindowFocused(void)
 
 /* cph - pulled out common button code logic */
 //e6y static
-int I_SDLtoDoomMouseState(Uint32 buttonstate)
+int I_SDLtoDoomMouseState(uint32_t buttonstate)
 {
   return 0     ;
 }

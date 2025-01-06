@@ -16,8 +16,6 @@
 //  Original Author: elim
 //
 
-#include "SDL.h"
-
 extern int gl_window_width;
 extern int gl_window_height;
 extern int gl_viewport_width;
@@ -31,7 +29,6 @@ extern float gl_scale_x;
 extern float gl_scale_y;
 extern int gl_letterbox_clear_required;
 
-void dsda_GLGetSDLWindowSize(SDL_Window* sdl_window);
 void dsda_GLSetRenderViewportParams(void);
 void dsda_GLSetRenderViewport(void);
 void dsda_GLSetRenderViewportScissor(void);

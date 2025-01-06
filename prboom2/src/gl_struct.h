@@ -34,8 +34,6 @@
 #ifndef _GL_STRUCT_H
 #define _GL_STRUCT_H
 
-#include <SDL_opengl.h>
-
 extern dboolean use_gl_nodes;
 
 typedef enum {
@@ -165,7 +163,7 @@ enum
 
 typedef struct am_icon_s
 {
-  GLuint tex_id;
+  unsigned int tex_id;
   const char* name;
   int lumpnum;
 } am_icon_t;

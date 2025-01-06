@@ -38,14 +38,8 @@
 #include "config.h"
 #endif
 
-#include <SDL_opengl.h>
-
 #include "doomtype.h"
 #include "v_video.h"
-#include "SDL.h"
-
-extern SDL_Window *sdl_window;
-extern SDL_Renderer *sdl_renderer;
 
 extern const char *screen_resolutions_list[];
 

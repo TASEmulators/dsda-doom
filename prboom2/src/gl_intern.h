@@ -65,16 +65,16 @@ typedef enum
 
 typedef struct gl_strip_coords_s
 {
-  GLfloat v[4][3];
+  float v[4][3];
 
-  GLfloat t[4][2];
+  float t[4][2];
 } gl_strip_coords_t;
 
 #define PLAYERCOLORMAP_COUNT (9)
 
 typedef struct detail_s
 {
-  GLuint texid;
+  unsigned int texid;
   int texture_num;
   float width, height;
   float offsetx, offsety;
@@ -99,9 +99,9 @@ typedef struct
   int buffer_size;
 
   //e6y: support for Boom colormaps
-  GLuint ***glTexExID;
+  unsigned int ***glTexExID;
   unsigned int texflags[CR_LIMIT+MAX_MAXPLAYERS][PLAYERCOLORMAP_COUNT];
-  GLuint *texid_p;
+  unsigned int *texid_p;
   unsigned int *texflags_p;
 
   int cm;
@@ -165,7 +165,6 @@ typedef struct
 typedef struct
 {
   int index;   // subsector index
-  GLenum mode; // GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
   int vertexcount; // number of vertexes in this loop
   int vertexindex; // index into vertex list
 } GLLoopDef;
@@ -188,15 +187,15 @@ typedef struct
 
 typedef struct
 {
-  GLfloat x;
-  GLfloat y;
-  GLfloat z;
+  float x;
+  float y;
+  float z;
 } GLVertex;
 
 typedef struct
 {
-  GLfloat u;
-  GLfloat v;
+  float u;
+  float v;
 } GLTexcoord;
 
 typedef struct
@@ -337,7 +336,7 @@ void gld_ResetDrawInfo(void);
 extern GLSector *sectorloops;
 extern GLMapSubsector *subsectorloops;
 
-extern GLfloat gl_texture_filter_anisotropic;
+extern float gl_texture_filter_anisotropic;
 void gld_SetTexFilters(GLTexture *gltexture);
 
 extern float xCamera,yCamera,zCamera;
@@ -350,7 +349,7 @@ void gld_InitDetail(void);
 
 void gld_PreprocessDetail(void);
 
-extern GLuint* last_glTexID;
+extern unsigned int* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force, dboolean indexed, dboolean sky);
 void gld_BindTexture(GLTexture *gltexture, unsigned int flags, dboolean sky);
 GLTexture *gld_RegisterPatch(int lump, int cm, dboolean is_sprite, dboolean indexed);
@@ -382,11 +381,11 @@ void gld_RecalcVertexHeights(const vertex_t *v);
 void gld_InitGLVersion(void);
 void gld_ResetLastTexture(void);
 
-unsigned char* gld_GetTextureBuffer(GLuint texid, int miplevel, int *width, int *height);
+unsigned char* gld_GetTextureBuffer(unsigned int texid, int miplevel, int *width, int *height);
 
 int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int width, int height);
 
-GLuint CaptureScreenAsTexID(void);
+unsigned int CaptureScreenAsTexID(void);
 
 //progress
 void gld_ProgressUpdate(const char * text, int progress, int total);
@@ -394,8 +393,8 @@ int gld_ProgressStart(void);
 int gld_ProgressEnd(void);
 
 //FBO
-extern GLuint glSceneImageFBOTexID;
-extern GLuint glSceneImageTextureFBOTexID;
+extern unsigned int glSceneImageFBOTexID;
+extern unsigned int glSceneImageTextureFBOTexID;
 
 extern dboolean invul_cm;
 extern float bw_red;
@@ -445,7 +444,7 @@ typedef struct SkyBoxParams_s
   PalEntry_t CeilingSkyColor[2];
 } SkyBoxParams_t;
 extern SkyBoxParams_t SkyBox;
-extern GLfloat gl_whitecolor[];
+extern float gl_whitecolor[];
 void gld_InitSky(void);
 void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype);
 void gld_GetSkyCapColors(void);
@@ -489,7 +488,7 @@ typedef struct vbo_xy_uv_rgba_s
 extern byte *segrendered; // true if sector rendered (only here for malloc)
 extern int *linerendered[2]; // true if linedef rendered (only here for malloc)
 extern int rendermarker;
-extern GLuint flats_vbo_id;
+extern unsigned int flats_vbo_id;
 
 void glsl_Init(void);
 void glsl_SetTextureDims(int unit, unsigned int width, unsigned int height);
