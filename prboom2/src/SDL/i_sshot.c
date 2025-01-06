@@ -59,17 +59,6 @@ int renderH;
 
 void I_UpdateRenderSize(void)
 {
-  #ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode())
-  {
-    renderW = gl_window_width;
-    renderH = gl_window_height;
-  }
-  else
-  #endif
-  {
-    SDL_GetRendererOutputSize(sdl_renderer, &renderW, &renderH);
-  }
 }
 
 //
@@ -78,26 +67,7 @@ void I_UpdateRenderSize(void)
 
 int I_ScreenShot(const char *fname)
 {
-  int result = -1;
-  unsigned char *pixels = I_GrabScreen();
-  SDL_Surface *screenshot = NULL;
-
-  if (pixels)
-  {
-    screenshot = SDL_CreateRGBSurfaceFrom(pixels, renderW, renderH, 24,
-      renderW * 3, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
-  }
-
-  if (screenshot)
-  {
-#ifdef HAVE_LIBSDL2_IMAGE
-    result = IMG_SavePNG(screenshot, fname);
-#else
-    result = SDL_SaveBMP(screenshot, fname);
-#endif
-    SDL_FreeSurface(screenshot);
-  }
-  return result;
+  return 0;
 }
 
 // NSM
@@ -109,31 +79,5 @@ int I_ScreenShot(const char *fname)
 
 unsigned char *I_GrabScreen(void)
 {
-  static unsigned char *pixels = NULL;
-  static int pixels_size = 0;
-  int size;
-
-  I_UpdateRenderSize();
-
-#ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode())
-  {
-    return gld_ReadScreen();
-  }
-#endif
-
-  size = renderW * renderH * 3;
-  if (!pixels || size > pixels_size)
-  {
-    pixels_size = size;
-    pixels = (unsigned char*)Z_Realloc(pixels, size);
-  }
-
-  if (pixels && size)
-  {
-    SDL_Rect screen = { 0, 0, renderW, renderH };
-    SDL_RenderReadPixels(sdl_renderer, &screen, SDL_PIXELFORMAT_RGB24, pixels, renderW * 3);
-  }
-
-  return pixels;
+  return NULL;
 }

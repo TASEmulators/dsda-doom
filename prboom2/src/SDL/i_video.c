@@ -110,9 +110,6 @@ extern const int gl_depthbuffer_bits;
 extern void M_QuitDOOM(int choice);
 int desired_fullscreen;
 int exclusive_fullscreen;
-SDL_Surface *buffer;
-SDL_Window *sdl_window;
-SDL_Renderer *sdl_renderer;
 unsigned int windowid = 0;
 
 // Map keys like vanilla doom
@@ -308,11 +305,6 @@ void I_SetPalette (int pal)
 
 static void I_ShutdownSDL(void)
 {
-  if (buffer) SDL_FreeSurface(buffer);
-  if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
-  if (sdl_window) SDL_DestroyWindow(sdl_window);
-
-  SDL_Quit();
   return;
 }
 
@@ -714,7 +706,6 @@ void I_InitScreenResolution(void)
   char c, x;
   dsda_arg_t *arg;
   video_mode_t mode;
-  int init = (sdl_window == NULL);
 
   I_GetScreenResolution();
 
@@ -724,58 +715,9 @@ void I_InitScreenResolution(void)
     desired_fullscreen = 1;
 
   if (dsda_Flag(dsda_arg_window))
-    desired_fullscreen = 0;
-
-  if (init)
-  {
-    //e6y: ability to change screen resolution from GUI
-    I_FillScreenResolutionsList();
-
-    // Video stuff
-    arg = dsda_Arg(dsda_arg_width);
-    if (arg->found)
-      desired_screenwidth = arg->value.v_int;
-
-    arg = dsda_Arg(dsda_arg_height);
-    if (arg->found)
-      desired_screenheight = arg->value.v_int;
-
-    // e6y
-    // change the screen size for the current session only
-    // syntax: -geom WidthxHeight[w|f]
-    // examples: -geom 320x200f, -geom 640x480w, -geom 1024x768
-    w = desired_screenwidth;
-    h = desired_screenheight;
-
-    arg = dsda_Arg(dsda_arg_geometry);
-    if (arg->found)
-    {
-      int count = sscanf(arg->value.v_string, "%d%c%d%c", &w, &x, &h, &c);
-
-      // at least width and height must be specified
-      // restoring original values if not
-      if (count < 3 || tolower(x) != 'x')
-      {
-        w = desired_screenwidth;
-        h = desired_screenheight;
-      }
-      else
-      {
-        if (count >= 4)
-        {
-          if (tolower(c) == 'w')
-            desired_fullscreen = 0;
-          if (tolower(c) == 'f')
-            desired_fullscreen = 1;
-        }
-      }
-    }
-  }
-  else
-  {
-    w = desired_screenwidth;
-    h = desired_screenheight;
-  }
+  desired_fullscreen = 0;
+  w = desired_screenwidth;
+  h = desired_screenheight;
 
   mode = I_DesiredVideoMode();
 
@@ -881,30 +823,6 @@ void I_UpdateVideoMode(void)
   screen_multiply = dsda_IntConfig(dsda_config_render_screen_multiply);
   // integer_scaling = dsda_IntConfig(dsda_config_integer_scaling);
 
-  if(sdl_window)
-  {
-    // video capturing cannot be continued with new screen settings
-    I_CaptureFinish();
-  
-  #ifdef __ENABLE_OPENGL_
-    if (V_IsOpenGLMode())
-    {
-      gld_CleanMemory();
-      gld_CleanStaticMemory();
-    }
-  #endif
-
-    I_InitScreenResolution();
-
-    if (buffer) SDL_FreeSurface(buffer);
-    if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
-    SDL_DestroyWindow(sdl_window);
-
-    sdl_renderer = NULL;
-    sdl_window = NULL;
-    buffer = NULL;
-  }
-
   // Initialize SDL with this graphics mode
   #ifdef __ENABLE_OPENGL_
   if (V_IsOpenGLMode()) {
@@ -939,10 +857,6 @@ void I_UpdateVideoMode(void)
       screen_multiply++;
     }
   }
-
-    buffer = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 32, 0, 0, 0, 0);
-    SDL_FillRect(buffer, NULL, 0);
-  windowid = SDL_GetWindowID(sdl_window);
 
   if (V_IsSoftwareMode())
   {
