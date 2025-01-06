@@ -49,12 +49,6 @@
 #include <unistd.h>
 #endif
 
-#include "SDL.h"
-//e6y
-#ifdef _WIN32
-#include <SDL_syswm.h>
-#endif
-
 #include "doomstat.h"
 #include "doomdef.h"
 #include "doomtype.h"
@@ -95,8 +89,6 @@
 dboolean window_focused;
 
 // Window resize state.
-static void ApplyWindowResize(SDL_Event *resize_event);
-
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
@@ -112,20 +104,6 @@ int desired_fullscreen;
 int exclusive_fullscreen;
 unsigned int windowid = 0;
 
-// Map keys like vanilla doom
-static int VanillaTranslateKey(SDL_Keysym* key)
-{
-  return 0;
-}
-
-//
-//  Translates the key currently in key
-//
-
-static int I_TranslateKey(SDL_Keysym* key)
-{
-  return 0;
-}
 
 dboolean I_WindowFocused(void)
 {
@@ -310,23 +288,6 @@ static void I_ShutdownSDL(void)
 
 void I_PreInitGraphics(void)
 {
-  int p;
-
-  // Initialize SDL
-  unsigned int flags = 0;
-  if (!(dsda_Flag(dsda_arg_nodraw) && dsda_Flag(dsda_arg_nosound)))
-    flags = SDL_INIT_VIDEO;
-#ifdef PRBOOM_DEBUG
-  flags |= SDL_INIT_NOPARACHUTE;
-#endif
-
-  p = SDL_Init(flags);
-  if (p < 0)
-  {
-    I_Error("Could not initialize SDL [%s]", SDL_GetError());
-  }
-
-  I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", exit_priority_normal);
 }
 
 // e6y: resolution limitation is removed
@@ -398,43 +359,6 @@ static int cmp_resolutions (const void *a, const void *b)
     return (wa == wb) ? ha - hb : wa - wb;
 }
 
-static void I_AppendResolution(SDL_DisplayMode *mode, int *current_resolution_index, int *list_size)
-{
-  int i;
-  char mode_name[256];
-
-
-  snprintf(mode_name, sizeof(mode_name), "%dx%d", mode->w, mode->h);
-
-  for(i = 0; i < *list_size; i++)
-    if (!strcmp(mode_name, screen_resolutions_list[i]))
-      return;
-
-  screen_resolutions_list[*list_size] = Z_Strdup(mode_name);
-
-  if (mode->w == desired_screenwidth && mode->h == desired_screenheight)
-    *current_resolution_index = *list_size;
-
-  (*list_size)++;
-}
-
-static void I_AppendCustomResolution(int *current_resolution_index, int *list_size)
-{
-  const char *custom_resolution;
-
-  custom_resolution = dsda_StringConfig(dsda_config_custom_resolution);
-
-  if (strlen(custom_resolution))
-  {
-    SDL_DisplayMode mode;
-
-    if (sscanf(custom_resolution, "%4dx%4d", &mode.w, &mode.h) == 2)
-    {
-      I_AppendResolution(&mode, current_resolution_index, list_size);
-    }
-  }
-}
-
 //
 // I_FillScreenResolutionsList
 // Get all the supported screen resolutions
@@ -442,91 +366,6 @@ static void I_AppendCustomResolution(int *current_resolution_index, int *list_si
 //
 static void I_FillScreenResolutionsList(void)
 {
-  int display_index = 0;
-  SDL_DisplayMode mode;
-  int i, list_size, current_resolution_index, count;
-  char desired_resolution[256];
-
-  // do it only once
-  if (screen_resolutions_list[0])
-  {
-    return;
-  }
-
-  if (desired_screenwidth == 0 || desired_screenheight == 0)
-  {
-    I_GetScreenResolution();
-  }
-
-  // Don't call SDL_ListModes if SDL has not been initialized
-  count = 0;
-  if (!nodrawers)
-    count = SDL_GetNumDisplayModes(display_index);
-
-  list_size = 0;
-  current_resolution_index = -1;
-
-  // on success, SDL_GetNumDisplayModes() always returns at least 1
-  if (count > 0)
-  {
-    // -2 for the desired resolution and for NULL
-    count = MIN(count, MAX_RESOLUTIONS_COUNT - 2 - num_canonicals);
-
-    for(i = count - 1 + num_canonicals; i >= 0; i--)
-    {
-      // make sure the canonical resolutions are always available
-      if (i > count - 1)
-      {
-        // no hard-coded resolutions for mode-changing fullscreen
-        if (exclusive_fullscreen)
-          continue; 
-
-        mode.w = canonicals[i - count].w;
-        mode.h = canonicals[i - count].h;
-      }
-      else
-      {
-        SDL_GetDisplayMode(display_index, i, &mode);
-      }
-
-      I_AppendResolution(&mode, &current_resolution_index, &list_size);
-    }
-
-    I_AppendCustomResolution(&current_resolution_index, &list_size);
-
-    screen_resolutions_list[list_size] = NULL;
-  }
-
-  snprintf(desired_resolution, sizeof(desired_resolution), "%dx%d", desired_screenwidth, desired_screenheight);
-
-  // [FG] if the desired resolution not in the list, append it
-  if (current_resolution_index == -1)
-  {
-    screen_resolutions_list[list_size] = Z_Strdup(desired_resolution);
-    list_size++;
-  }
-
-  // [FG] sort the list
-  SDL_qsort(screen_resolutions_list, list_size, sizeof(*screen_resolutions_list), cmp_resolutions);
-
-  // [FG] find the desired resolution again
-  for (i = 0; i < list_size; i++)
-  {
-    if (!strcmp(desired_resolution, screen_resolutions_list[i]))
-    {
-      current_resolution_index = i;
-      break;
-    }
-  }
-
-  screen_resolutions_list[list_size] = NULL;
-  // This code is inside of the onUpdate for screen resolution, so it must avoid recursion
-  {
-    const char* dsda_HackStringConfig(dsda_config_identifier_t id, const char* value, dboolean persist);
-
-    dsda_HackStringConfig(dsda_config_screen_resolution,
-                          screen_resolutions_list[current_resolution_index], false);
-  }
 }
 
 // e6y
@@ -535,84 +374,13 @@ static void I_FillScreenResolutionsList(void)
 // It should be used only for fullscreen modes.
 static void I_ClosestResolution (int *width, int *height)
 {
-  int display_index = 0;
-  int twidth, theight;
-  int cwidth = 0, cheight = 0;
-  int i, count;
-  unsigned int closest = UINT_MAX;
-  unsigned int dist;
-
-  if (!SDL_WasInit(SDL_INIT_VIDEO))
-    return;
-
-  count = SDL_GetNumDisplayModes(display_index);
-
-  if (count > 0)
-  {
-    for(i=0; i<count; ++i)
-    {
-      SDL_DisplayMode mode;
-      SDL_GetDisplayMode(display_index, i, &mode);
-
-      twidth = mode.w;
-      theight = mode.h;
-
-      if (twidth == *width && theight == *height)
-        return;
-
-      //if (iteration == 0 && (twidth < *width || theight < *height))
-      //  continue;
-
-      dist = (twidth - *width) * (twidth - *width) +
-             (theight - *height) * (theight - *height);
-
-      if (dist < closest)
-      {
-        closest = dist;
-        cwidth = twidth;
-        cheight = theight;
-      }
-    }
-    if (closest != 4294967295u)
-    {
-      *width = cwidth;
-      *height = cheight;
-      return;
-    }
-  }
 }
 
 // e6y
 // It is a simple test of CPU cache misses.
 unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 {
-  int i, k;
-  char *s, *d, *ps, *pd;
-  unsigned int tickStart;
-
-  s = (char*)Z_Malloc(width * height);
-  d = (char*)Z_Malloc(width * height);
-
-  tickStart = SDL_GetTicks();
-  k = 0;
-  do
-  {
-    ps = s;
-    pd = d;
-    for(i = 0; i < height; i++)
-    {
-      pd[0] = ps[0];
-      pd += width;
-      ps += width;
-    }
-    k++;
-  }
-  while (SDL_GetTicks() - tickStart < mintime);
-
-  Z_Free(d);
-  Z_Free(s);
-
-  return k;
+  return 0;
 }
 
 // CPhipps -
@@ -749,7 +517,6 @@ void I_InitScreenResolution(void)
 
 void I_SetWindowCaption(void)
 {
-  SDL_SetWindowTitle(NULL, PACKAGE_NAME " " PACKAGE_VERSION);
 }
 
 //
@@ -760,20 +527,6 @@ void I_SetWindowCaption(void)
 
 void I_SetWindowIcon(void)
 {
-  static SDL_Surface *surface = NULL;
-
-  // do it only once, because of crash in SDL_InitVideoMode in SDL 1.3
-  if (!surface)
-  {
-    surface = SDL_CreateRGBSurfaceFrom(icon_data,
-      icon_w, icon_h, 32, icon_w * 4,
-      0xff << 0, 0xff << 8, 0xff << 16, 0xff << 24);
-  }
-
-  if (surface)
-  {
-    SDL_SetWindowIcon(NULL, surface);
-  }
 }
 
 void I_InitGraphics(void)
@@ -807,7 +560,6 @@ void I_InitGraphics(void)
 
 void I_UpdateVideoMode(void)
 {
-  int init_flags = SDL_WINDOW_ALLOW_HIGHDPI;
   int screen_multiply;
   int actualheight;
   int render_vsync;
@@ -823,12 +575,6 @@ void I_UpdateVideoMode(void)
   screen_multiply = dsda_IntConfig(dsda_config_render_screen_multiply);
   // integer_scaling = dsda_IntConfig(dsda_config_integer_scaling);
 
-  // Initialize SDL with this graphics mode
-  #ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode()) {
-    init_flags |= SDL_WINDOW_OPENGL;
-  }
-  #endif
   
   // [FG] aspect ratio correction for the canonical video modes
   if (SCREENHEIGHT == 200 || SCREENHEIGHT == 400)
@@ -838,24 +584,6 @@ void I_UpdateVideoMode(void)
   else
   {
     actualheight = SCREENHEIGHT;
-  }
-
-  if (desired_fullscreen)
-  {
-    if (exclusive_fullscreen)
-      init_flags |= SDL_WINDOW_FULLSCREEN;
-    else
-      init_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-  }
-  else
-  {
-    init_flags |= SDL_WINDOW_RESIZABLE;
-
-    // [FG] make sure initial window size is always >= 640x480
-    while (screen_multiply*SCREENWIDTH < 640 || screen_multiply*actualheight < 480)
-    {
-      screen_multiply++;
-    }
   }
 
   if (V_IsSoftwareMode())
@@ -883,13 +611,10 @@ void I_UpdateVideoMode(void)
 
 static void ActivateMouse(void)
 {
-  SDL_SetRelativeMouseMode(SDL_TRUE);
-  SDL_GetRelativeMouseState(NULL, NULL);
 }
 
 static void DeactivateMouse(void)
 {
-  SDL_SetRelativeMouseMode(SDL_FALSE);
 }
 
 // Interpolates mouse input to mitigate stuttering
@@ -947,9 +672,6 @@ void UpdateGrab(void)
 {
 }
 
-static void ApplyWindowResize(SDL_Event *resize_event)
-{
-}
 
 /////////// Headless function
 
