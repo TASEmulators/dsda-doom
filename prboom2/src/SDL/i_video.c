@@ -92,9 +92,6 @@
 #include "dsda/time.h"
 #include "dsda/gl/render_scale.h"
 
-//e6y: new mouse code
-static SDL_Cursor* cursors[2] = {NULL, NULL};
-
 dboolean window_focused;
 
 // Window resize state.
@@ -117,8 +114,6 @@ SDL_Surface *screen;
 SDL_Surface *buffer;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
-static SDL_Texture *sdl_texture;
-static SDL_GLContext sdl_glcontext;
 unsigned int windowid = 0;
 SDL_Rect src_rect = { 0, 0, 0, 0 };
 
@@ -318,8 +313,6 @@ static void I_UploadNewPalette(int pal, int force)
 
 void I_ShutdownGraphics(void)
 {
-  SDL_FreeCursor(cursors[1]);
-  DeactivateMouse();
 }
 
 static dboolean queue_frame_capture;
@@ -358,69 +351,12 @@ static int newpal = 0;
 
 void I_FinishUpdate (void)
 {
-  //e6y: new mouse code
-  UpdateGrab();
-
-#ifdef MONITOR_VISIBILITY
-  //!!if (!(SDL_GetAppState()&SDL_APPACTIVE)) {
-  //!!  return;
-  //!!}
-#endif
-
-#ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode()) {
-    // proff 04/05/2000: swap OpenGL buffers
-    gld_Finish();
-    return;
-  }
-#endif
-
-  if (SDL_MUSTLOCK(screen)) {
-      int h;
-      byte *src;
-      byte *dest;
-
-      if (SDL_LockSurface(screen) < 0) {
-        lprintf(LO_INFO,"I_FinishUpdate: %s\n", SDL_GetError());
-        return;
-      }
-
-      dest=(byte*)screen->pixels;
-      src=screens[0].data;
-      h=screen->h;
-      for (; h>0; h--)
-      {
-        memcpy(dest,src,SCREENWIDTH); //e6y
-        dest+=screen->pitch;
-        src+=screens[0].pitch;
-      }
-
-      SDL_UnlockSurface(screen);
-  }
-
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
   if (newpal != NO_PALETTE_CHANGE) {
     I_UploadNewPalette(newpal, false);
     newpal = NO_PALETTE_CHANGE;
   }
-
-  // Blit from the paletted 8-bit screen buffer to the intermediate
-  // 32-bit RGBA buffer that we can load into the texture.
-  SDL_LowerBlit(screen, &src_rect, buffer, &src_rect);
-
-  // Update the intermediate texture with the contents of the RGBA buffer.
-  SDL_UpdateTexture(sdl_texture, &src_rect, buffer->pixels, buffer->pitch);
-
-  // Make sure the pillarboxes are kept clear each frame.
-  SDL_RenderClear(sdl_renderer);
-
-  SDL_RenderCopy(sdl_renderer, sdl_texture, &src_rect, NULL);
-
-  I_HandleCapture();
-
-  // Draw!
-  SDL_RenderPresent(sdl_renderer);
 }
 
 //
@@ -439,10 +375,8 @@ void I_SetPalette (int pal)
 
 static void I_ShutdownSDL(void)
 {
-  if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
   if (screen) SDL_FreeSurface(screen);
   if (buffer) SDL_FreeSurface(buffer);
-  if (sdl_texture) SDL_DestroyTexture(sdl_texture);
   if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
   if (sdl_window) SDL_DestroyWindow(sdl_window);
 
@@ -1030,19 +964,15 @@ void I_UpdateVideoMode(void)
 
     I_InitScreenResolution();
 
-    if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
     if (screen) SDL_FreeSurface(screen);
     if (buffer) SDL_FreeSurface(buffer);
-    if (sdl_texture) SDL_DestroyTexture(sdl_texture);
     if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(sdl_window);
 
     sdl_renderer = NULL;
     sdl_window = NULL;
-    sdl_glcontext = NULL;
     screen = NULL;
     buffer = NULL;
-    sdl_texture = NULL;
   }
 
   // Initialize SDL with this graphics mode
@@ -1080,100 +1010,10 @@ void I_UpdateVideoMode(void)
     }
   }
 
-    // For headless operation, prevent SDL from creating window
-    #ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode())
-  {
-    SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-    SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
-    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
-    SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
-
-    //e6y: anti-aliasing
-    gld_MultisamplingInit();
-
-    // sdl_window = SDL_CreateWindow(
-    //   PACKAGE_NAME " " PACKAGE_VERSION,
-    //   SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    //   SCREENWIDTH * screen_multiply, actualheight * screen_multiply,
-    //   init_flags);
-    // sdl_glcontext = SDL_GL_CreateContext(sdl_window);
-    // SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
-  }
-  else
-  #endif
-  {
-    // int flags = SDL_RENDERER_TARGETTEXTURE;
-
-    // if (render_vsync)
-    //   flags |= SDL_RENDERER_PRESENTVSYNC;
-
-    // sdl_window = SDL_CreateWindow(
-    //   PACKAGE_NAME " " PACKAGE_VERSION,
-    //   SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    //   SCREENWIDTH * screen_multiply, actualheight * screen_multiply,
-    //   init_flags);
-    // sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
-
-    // SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
-    // SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, actualheight);
-
-    // // [FG] force integer scales
-    // SDL_RenderSetIntegerScale(sdl_renderer, integer_scaling);
-
     screen = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 8, 0, 0, 0, 0);
     buffer = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 32, 0, 0, 0, 0);
     SDL_FillRect(buffer, NULL, 0);
-
-    // sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer, buffer);
-
-    // if(screen == NULL) {
-    //   I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
-    // }
-  }
-
-  // if (sdl_video_window_pos)
-  // {
-  //   int x, y;
-  //   if (sscanf(sdl_video_window_pos, "%d,%d", &x, &y) == 2)
-  //   {
-  //     SDL_SetWindowPosition(sdl_window, x, y);
-  //   }
-  //   if (strcmp(sdl_video_window_pos, "center") == 0)
-  //   {
-  //     SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-  //   }
-  // }
-
-  // Workaround for SDL 2.0.14 alt-tab bug (taken from Doom Retro)
-#if defined(_WIN32)
-  {
-     SDL_version ver;
-     SDL_GetVersion(&ver);
-     if (ver.major == 2 && ver.minor == 0 && (ver.patch == 14 || ver.patch == 16))
-     {
-        SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
-     }
-  }
-#endif
-
   windowid = SDL_GetWindowID(sdl_window);
-
-#ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode())
-  {
-    SDL_GL_SetSwapInterval((render_vsync ? 1 : 0));
-  }
-#endif
 
   if (V_IsSoftwareMode())
   {
@@ -1203,59 +1043,8 @@ void I_UpdateVideoMode(void)
   V_SetPalette(0);
   I_UploadNewPalette(0, true);
 
-#ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode())
-  {
-    int temp;
-    lprintf(LO_DEBUG, "SDL OpenGL PixelFormat:\n");
-    SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_RED_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_GREEN_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_BLUE_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_STENCIL_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_ACCUM_RED_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_ACCUM_GREEN_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_ACCUM_BLUE_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_DOUBLEBUFFER: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_BUFFER_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_DEPTH_SIZE: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_MULTISAMPLESAMPLES: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_MULTISAMPLEBUFFERS: %i\n",temp);
-    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
-    lprintf(LO_DEBUG, "    SDL_GL_STENCIL_SIZE: %i\n",temp);
-
-    gld_Init(SCREENWIDTH, SCREENHEIGHT);
-  }
-#endif
-
   ST_SetResolution();
   AM_SetResolution();
-
-#ifdef __ENABLE_OPENGL_
-  if (V_IsOpenGLMode())
-  {
-    M_ChangeFOV();
-    deh_changeCompTranslucency();
-
-    // elim - Sets up viewport sizing for render-to-texture scaling
-    dsda_GLGetSDLWindowSize(sdl_window);
-    dsda_GLSetRenderViewportParams();
-    dsda_GLSetRenderViewport();
-  }
-  #endif
 
   src_rect.w = SCREENWIDTH;
   src_rect.h = SCREENHEIGHT;
