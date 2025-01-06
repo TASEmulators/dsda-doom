@@ -199,73 +199,7 @@ static int VanillaTranslateKey(SDL_Keysym* key)
 
 static int I_TranslateKey(SDL_Keysym* key)
 {
-  int rc = 0;
-
-  if (dsda_IntConfig(dsda_config_vanilla_keymap))
-    return VanillaTranslateKey(key);
-
-  switch (key->sym) {
-  case SDLK_LEFT: rc = KEYD_LEFTARROW;  break;
-  case SDLK_RIGHT:  rc = KEYD_RIGHTARROW; break;
-  case SDLK_DOWN: rc = KEYD_DOWNARROW;  break;
-  case SDLK_UP:   rc = KEYD_UPARROW;  break;
-  case SDLK_ESCAPE: rc = KEYD_ESCAPE; break;
-  case SDLK_RETURN: rc = KEYD_ENTER;  break;
-  case SDLK_TAB:  rc = KEYD_TAB;    break;
-  case SDLK_F1:   rc = KEYD_F1;   break;
-  case SDLK_F2:   rc = KEYD_F2;   break;
-  case SDLK_F3:   rc = KEYD_F3;   break;
-  case SDLK_F4:   rc = KEYD_F4;   break;
-  case SDLK_F5:   rc = KEYD_F5;   break;
-  case SDLK_F6:   rc = KEYD_F6;   break;
-  case SDLK_F7:   rc = KEYD_F7;   break;
-  case SDLK_F8:   rc = KEYD_F8;   break;
-  case SDLK_F9:   rc = KEYD_F9;   break;
-  case SDLK_F10:  rc = KEYD_F10;    break;
-  case SDLK_F11:  rc = KEYD_F11;    break;
-  case SDLK_F12:  rc = KEYD_F12;    break;
-  case SDLK_BACKSPACE:  rc = KEYD_BACKSPACE;  break;
-  case SDLK_DELETE: rc = KEYD_DEL;  break;
-  case SDLK_INSERT: rc = KEYD_INSERT; break;
-  case SDLK_PAGEUP: rc = KEYD_PAGEUP; break;
-  case SDLK_PAGEDOWN: rc = KEYD_PAGEDOWN; break;
-  case SDLK_HOME: rc = KEYD_HOME; break;
-  case SDLK_END:  rc = KEYD_END;  break;
-  case SDLK_PAUSE:  rc = KEYD_PAUSE;  break;
-  case SDLK_EQUALS: rc = KEYD_EQUALS; break;
-  case SDLK_MINUS:  rc = KEYD_MINUS;  break;
-  case SDLK_KP_0:  rc = KEYD_KEYPAD0;  break;
-  case SDLK_KP_1:  rc = KEYD_KEYPAD1;  break;
-  case SDLK_KP_2:  rc = KEYD_KEYPAD2;  break;
-  case SDLK_KP_3:  rc = KEYD_KEYPAD3;  break;
-  case SDLK_KP_4:  rc = KEYD_KEYPAD4;  break;
-  case SDLK_KP_5:  rc = KEYD_KEYPAD5;  break;
-  case SDLK_KP_6:  rc = KEYD_KEYPAD6;  break;
-  case SDLK_KP_7:  rc = KEYD_KEYPAD7;  break;
-  case SDLK_KP_8:  rc = KEYD_KEYPAD8;  break;
-  case SDLK_KP_9:  rc = KEYD_KEYPAD9;  break;
-  case SDLK_KP_PLUS:  rc = KEYD_KEYPADPLUS; break;
-  case SDLK_KP_MINUS: rc = KEYD_KEYPADMINUS;  break;
-  case SDLK_KP_DIVIDE:  rc = KEYD_KEYPADDIVIDE; break;
-  case SDLK_KP_MULTIPLY: rc = KEYD_KEYPADMULTIPLY; break;
-  case SDLK_KP_ENTER: rc = KEYD_KEYPADENTER;  break;
-  case SDLK_KP_PERIOD:  rc = KEYD_KEYPADPERIOD; break;
-  case SDLK_LSHIFT:
-  case SDLK_RSHIFT: rc = KEYD_RSHIFT; break;
-  case SDLK_LCTRL:
-  case SDLK_RCTRL:  rc = KEYD_RCTRL;  break;
-  case SDLK_LALT:
-  case SDLK_LGUI:
-  case SDLK_RALT:
-  case SDLK_RGUI:  rc = KEYD_RALT;   break;
-  case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
-  case SDLK_PRINTSCREEN: rc = KEYD_PRINTSC; break;
-  case SDLK_SCROLLLOCK: rc = KEYD_SCROLLLOCK; break;
-  default:    rc = key->sym;    break;
-  }
-
-  return rc;
-
+  return 0;
 }
 
 dboolean I_WindowFocused(void)
@@ -280,149 +214,11 @@ dboolean I_WindowFocused(void)
 //e6y static
 int I_SDLtoDoomMouseState(Uint32 buttonstate)
 {
-  return 0
-      | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
-      | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
-      | (buttonstate & SDL_BUTTON(3) ? 4 : 0)
-      | (buttonstate & SDL_BUTTON(6) ? 8 : 0)
-      | (buttonstate & SDL_BUTTON(7) ? 16 : 0)
-      | (buttonstate & SDL_BUTTON(4) ? 32 : 0)
-      | (buttonstate & SDL_BUTTON(5) ? 64 : 0)
-      | (buttonstate & SDL_BUTTON(8) ? 128 : 0)
-      ;
+  return 0     ;
 }
 
 static void I_GetEvent(void)
 {
-  event_t event;
-
-  SDL_Event SDLEvent;
-  SDL_Event *Event = &SDLEvent;
-
-  while (SDL_PollEvent(Event))
-  {
-    switch (Event->type) {
-      case SDL_KEYDOWN:
-#ifdef __APPLE__
-        if (Event->key.keysym.mod & KMOD_GUI)
-        {
-          // Switch windowed<->fullscreen if pressed <Command-F>
-          if (Event->key.keysym.sym == SDLK_f)
-          {
-            V_ToggleFullscreen();
-            break;
-          }
-        }
-#else
-        if (Event->key.keysym.mod & KMOD_LALT)
-        {
-          // Prevent executing action on Alt-Tab
-          if (Event->key.keysym.sym == SDLK_TAB)
-          {
-            break;
-          }
-          // Switch windowed<->fullscreen if pressed Alt-Enter
-          else if (Event->key.keysym.sym == SDLK_RETURN)
-          {
-            V_ToggleFullscreen();
-            break;
-          }
-          // Immediately exit on Alt+F4 ("Boss Key")
-          else if (Event->key.keysym.sym == SDLK_F4)
-          {
-            I_SafeExit(0);
-            break;
-          }
-        }
-#endif
-        event.type = ev_keydown;
-        event.data1.i = I_TranslateKey(&Event->key.keysym);
-        D_PostEvent(&event);
-        break;
-
-      case SDL_KEYUP:
-        {
-          event.type = ev_keyup;
-          event.data1.i = I_TranslateKey(&Event->key.keysym);
-          D_PostEvent(&event);
-        }
-        break;
-
-      case SDL_MOUSEBUTTONDOWN:
-      case SDL_MOUSEBUTTONUP:
-        if (mouse_enabled && window_focused)
-        {
-          event.type = ev_mouse;
-          event.data1.i = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
-          D_PostEvent(&event);
-        }
-        break;
-
-      case SDL_MOUSEWHEEL:
-        if (mouse_enabled && window_focused)
-        {
-          int mouseb;
-
-          if (Event->wheel.y > 0)
-            mouseb = KEYD_MWHEELUP;
-          else if (Event->wheel.y < 0)
-            mouseb = KEYD_MWHEELDOWN;
-          else if (Event->wheel.x < 0)
-            mouseb = KEYD_MWHEELLEFT;
-          else if (Event->wheel.x > 0)
-            mouseb = KEYD_MWHEELRIGHT;
-          else
-            mouseb = 0;
-
-          if(mouseb)
-          {
-            event.data1.i = mouseb;
-
-            event.type = ev_keydown;
-            D_PostEvent(&event);
-
-            event.type = ev_keyup;
-            D_PostEvent(&event);
-          }
-        }
-        break;
-
-      case SDL_CONTROLLERBUTTONDOWN:
-      case SDL_CONTROLLERBUTTONUP:
-        if (dsda_AllowGameController())
-          dsda_PollGameControllerButtons();
-        break;
-
-      case SDL_TEXTINPUT:
-        event.type = ev_text;
-        event.text = Event->text.text;
-        D_PostEvent(&event);
-        break;
-
-      case SDL_WINDOWEVENT:
-        if (Event->window.windowID == windowid)
-        {
-          switch (Event->window.event)
-          {
-          case SDL_WINDOWEVENT_FOCUS_GAINED:
-          case SDL_WINDOWEVENT_FOCUS_LOST:
-            UpdateFocus();
-            break;
-          case SDL_WINDOWEVENT_SIZE_CHANGED:
-            ApplyWindowResize(Event);
-            break;
-          }
-        }
-        break;
-
-      case SDL_QUIT:
-        S_StartVoidSound(sfx_swtchn);
-        M_QuitDOOM(0);
-
-      default:
-        break;
-    }
-  }
 }
 
 //
@@ -449,26 +245,10 @@ void I_StartFrame (void)
 
 static void I_FlushMousePosition(void)
 {
-  int x, y;
-
-  SDL_GetRelativeMouseState(&x, &y);
 }
 
 void I_InitMouse(void)
 {
-  static Uint8 empty_cursor_data = 0;
-
-  // check if the user wants to use the mouse
-  mouse_enabled = dsda_IntConfig(dsda_config_use_mouse) && !dsda_Flag(dsda_arg_nomouse);
-
-  SDL_PumpEvents();
-
-  // Save the default cursor so it can be recalled later
-  cursors[0] = SDL_GetCursor();
-  // Create an empty cursor
-  cursors[1] = SDL_CreateCursor(&empty_cursor_data, &empty_cursor_data, 8, 1, 0, 0);
-
-  I_FlushMousePosition();
 }
 
 //
@@ -531,13 +311,6 @@ static void I_UploadNewPalette(int pal, int force)
     num_pals /= 256;
   }
 
-#ifdef RANGECHECK
-  if ((size_t)pal >= num_pals)
-    I_Error("I_UploadNewPalette: Palette number out of range (%d>=%d)",
-      pal, num_pals);
-#endif
-
-  SDL_SetPaletteColors(screen->format->palette, playpal_data->colours + 256 * pal, 0, 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -848,7 +621,7 @@ static void I_FillScreenResolutionsList(void)
       {
         // no hard-coded resolutions for mode-changing fullscreen
         if (exclusive_fullscreen)
-          continue;
+          continue; 
 
         mode.w = canonicals[i - count].w;
         mode.h = canonicals[i - count].h;
