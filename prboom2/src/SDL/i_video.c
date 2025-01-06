@@ -110,7 +110,6 @@ extern const int gl_depthbuffer_bits;
 extern void M_QuitDOOM(int choice);
 int desired_fullscreen;
 int exclusive_fullscreen;
-SDL_Surface *screen;
 SDL_Surface *buffer;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
@@ -309,7 +308,6 @@ void I_SetPalette (int pal)
 
 static void I_ShutdownSDL(void)
 {
-  if (screen) SDL_FreeSurface(screen);
   if (buffer) SDL_FreeSurface(buffer);
   if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
   if (sdl_window) SDL_DestroyWindow(sdl_window);
@@ -898,14 +896,12 @@ void I_UpdateVideoMode(void)
 
     I_InitScreenResolution();
 
-    if (screen) SDL_FreeSurface(screen);
     if (buffer) SDL_FreeSurface(buffer);
     if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(sdl_window);
 
     sdl_renderer = NULL;
     sdl_window = NULL;
-    screen = NULL;
     buffer = NULL;
   }
 
@@ -944,26 +940,16 @@ void I_UpdateVideoMode(void)
     }
   }
 
-    screen = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 8, 0, 0, 0, 0);
     buffer = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 32, 0, 0, 0, 0);
     SDL_FillRect(buffer, NULL, 0);
   windowid = SDL_GetWindowID(sdl_window);
 
   if (V_IsSoftwareMode())
   {
-    lprintf(LO_DEBUG, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen && screen->pixels ? "SDL buffer" : "own buffer", screen && SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
-
     // Get the info needed to render to the display
-    if (!SDL_MUSTLOCK(screen))
-    {
-      screens[0].not_on_heap = true;
-      screens[0].data = (unsigned char *) (screen->pixels);
-      screens[0].pitch = screen->pitch;
-    }
-    else
-    {
-      screens[0].not_on_heap = false;
-    }
+    screens[0].not_on_heap = true;
+    screens[0].data = (unsigned char *) malloc(SCREENWIDTH*SCREENHEIGHT);
+    screens[0].pitch = SCREENWIDTH;
 
     V_AllocScreens();
 
