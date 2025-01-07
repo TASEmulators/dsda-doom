@@ -4389,3 +4389,10 @@ void Hexen_G_DoReborn(int playernum)
         }
     }
 }
+
+// Headless functions
+
+void headlessGetMapName(char* outString)
+{
+  sprintf(outString, "%s", dsda_MapLumpName(gameepisode, gamemap));
+}
