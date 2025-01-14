@@ -150,6 +150,12 @@ struct
 static const byte *demobuffer;   /* cph - only used for playback */
 static int demolength; // check for overrun (missing DEMOMARKER)
 
+dboolean        preventLevelExit;
+dboolean        preventGameEnd;
+
+dboolean        reachedLevelExit;
+dboolean        reachedGameEnd;
+
 gameaction_t    gameaction;
 gamestate_t     gamestate;
 dboolean        in_game;
@@ -1458,6 +1464,27 @@ void G_Ticker (void)
       G_DoReborn(i);
   P_MapEnd();
 
+
+  // Resetting level/game ending indication flags
+  reachedLevelExit = 0;
+  reachedGameEnd = 0;
+
+  // Checking for level ending condition (and prevent the transition if necessary)
+  if (gameaction == ga_completed)  
+  {
+    reachedLevelExit = 1;
+    if (preventLevelExit == true) gameaction = ga_nothing; 
+  }
+  
+  // Checking for game ending condition (and prevent the transition if necessary)
+  if ((gameaction == ga_completed && gamemode == commercial && gamemap == 30) ||
+      (gameaction == ga_completed && gamemode == retail && gamemap == 8) ||
+      (preventGameEnd == true && gameaction == ga_victory))
+  {
+    reachedGameEnd = 1;
+    if (preventGameEnd == true) gameaction = ga_nothing;
+  }
+
   // do things to change the game state
   while (gameaction != ga_nothing)
   {
@@ -1477,6 +1504,7 @@ void G_Ticker (void)
         G_DoLoadGame();
         break;
       case ga_playdemo:
+      printf("PlayDemo\n");
         G_DoPlayDemo();
         break;
       case ga_completed:

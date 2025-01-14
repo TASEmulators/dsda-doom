@@ -2751,6 +2751,7 @@ void A_BossDeath(mobj_t *mo)
         }
     }
   }
+
   G_ExitLevel(0);
 }
 

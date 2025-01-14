@@ -142,6 +142,8 @@ dboolean nomusicparm;
 extern dboolean inhelpscreens;
 extern dboolean BorderNeedRefresh;
 
+extern dboolean enableOutput;
+
 int     startskill;
 int     startepisode;
 int     startmap;
@@ -1685,12 +1687,18 @@ static void EvaluateDoomVerStr(void)
 //
 // CPhipps - the old contents of D_DoomMain, but moved out of the main
 //  line of execution so its stack space can be freed
+extern dboolean preventLevelExit;
+extern dboolean preventGameEnd;
+extern dboolean reachedLevelExit;
+extern dboolean reachedGameEnd;
+
 
 void D_DoomMainSetup(void)
 {
   int p;
   dsda_arg_t *arg;
   dboolean autoload;
+  enableOutput = 0;
 
   setbuf(stdout,NULL);
 
@@ -1722,6 +1730,11 @@ void D_DoomMainSetup(void)
     deathmatch = 1;
 
   modifiedgame = false;
+
+  preventLevelExit = 0;
+  preventGameEnd = 0;
+  reachedLevelExit = 0;
+  reachedGameEnd = 0;
 
   // get skill / episode / map from parms
 

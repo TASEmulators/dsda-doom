@@ -56,6 +56,7 @@
 
 #include "dsda/args.h"
 
+dboolean enableOutput;
 static dboolean disable_message_box;
 
 int cons_stdout_mask = LO_INFO;
@@ -68,6 +69,8 @@ int cons_stderr_mask = LO_WARN | LO_ERROR;
 
 int lprintf(OutputLevels pri, const char *s, ...)
 {
+  if (enableOutput == 0) return 0;
+
   int r=0;
   char msg[MAX_MESSAGE_SIZE];
   int lvl=pri;

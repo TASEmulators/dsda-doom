@@ -41,6 +41,8 @@ static char* dsda_wad_save_dir;
 
 extern int dsda_max_kill_requirement;
 extern int player_damage_last_tic;
+extern dboolean reachedLevelExit;
+extern dboolean reachedGameEnd;
 
 static void dsda_ArchiveInternal(void) {
   uint64_t features;
@@ -160,6 +162,9 @@ void dsda_ArchiveAll(void) {
   P_ArchiveMap();
 
   dsda_ArchiveInternal();
+
+  P_SAVE_BYTE(reachedLevelExit);
+  P_SAVE_BYTE(reachedGameEnd);
 }
 
 void dsda_UnArchiveAll(void) {
@@ -180,6 +185,9 @@ void dsda_UnArchiveAll(void) {
   P_MapEnd();
 
   dsda_UnArchiveInternal();
+
+  P_LOAD_BYTE(reachedLevelExit);
+  P_LOAD_BYTE(reachedGameEnd);
 }
 
 void dsda_InitSaveDir(void) {
