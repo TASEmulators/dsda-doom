@@ -165,6 +165,7 @@ void dsda_ArchiveAll(void) {
 
   P_SAVE_BYTE(reachedLevelExit);
   P_SAVE_BYTE(reachedGameEnd);
+  P_SAVE_X(gametic);
 }
 
 void dsda_UnArchiveAll(void) {
@@ -188,6 +189,7 @@ void dsda_UnArchiveAll(void) {
 
   P_LOAD_BYTE(reachedLevelExit);
   P_LOAD_BYTE(reachedGameEnd);
+  P_LOAD_X(gametic);
 }
 
 void dsda_InitSaveDir(void) {
