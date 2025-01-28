@@ -49,9 +49,7 @@ static void dsda_CalculatePlaypalCksum(void) {
 
 static void dsda_InitTranMapBaseDir(void) {
   int length;
-  const char* data_root;
-
-  data_root = dsda_DataRoot();
+  const char* data_root = "dsda_doom_data";
 
   length = strlen(data_root) + 10; // "/tranmaps\0"
   tranmap_base_dir = Z_Malloc(length);

@@ -132,8 +132,8 @@ static void DemoEx_GetParams(const wadinfo_t* header) {
             if (!filename)
               continue;
 
-            if (files[i].source == source_iwad)
-              AddIWAD(filename);
+            // if (files[i].source == source_iwad)
+            //   AddIWAD(filename);
             else if (files[i].source == source_pwad)
               dsda_AppendStringArg(dsda_arg_file, filename);
             else if (files[i].source == source_deh)
