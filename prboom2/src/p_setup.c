@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 #include <math.h>
-#include <zlib.h>
+// #include <zlib.h>
 
 #include "doomstat.h"
 #include "m_bbox.h"
