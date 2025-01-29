@@ -330,17 +330,14 @@ void P_Ticker (void)
    * All of this complicated mess is used to preserve demo sync.
    */
 
-printf("P_Ticker 1\n"); fflush(stdout);
   if (dsda_Paused() || (dsda_PausedViaMenu() && players[consoleplayer].viewz != 1))
   {
     P_ResetWalkcam();
     return;
   }
 
-printf("P_Ticker 2\n"); fflush(stdout);
   R_UpdateInterpolations ();
 
-printf("P_Ticker 3\n"); fflush(stdout);
   if (dsda_FrozenMode())
   {
     P_FrozenTicker();
@@ -349,37 +346,22 @@ printf("P_Ticker 3\n"); fflush(stdout);
   {
     P_MapStart();
 
-printf("P_Ticker 4\n"); fflush(stdout);
     // not if this is an intermission screen
     if (gamestate == GS_LEVEL)
       for (i = 0; i < g_maxplayers; i++)
         if (playeringame[i])
           P_PlayerThink(&players[i]);
 
-printf("P_Ticker 5\n"); fflush(stdout);
     P_RunThinkers();
-
-    printf("P_Ticker 6\n"); fflush(stdout);
     P_UpdateSpecials();
-
-    printf("P_Ticker 7\n"); fflush(stdout);
     P_AnimateSurfaces();
-
-    printf("P_Ticker 8\n"); fflush(stdout);
     P_RespawnSpecials();
-
-    printf("P_Ticker 9\n"); fflush(stdout);
     P_AmbientSound();
 
-printf("P_Ticker 10\n"); fflush(stdout);
     P_MapEnd();
 
-printf("P_Ticker 11\n"); fflush(stdout);
     dsda_WatchPTickCompleted();
-
-    printf("P_Ticker 12\n"); fflush(stdout);
   }
 
-printf("P_Ticker 13\n"); fflush(stdout);
   leveltime++;                       // for par times
 }

@@ -159,31 +159,33 @@ const byte* dsda_TranMap(unsigned int alpha) {
   if (alpha > 99)
     return NULL;
 
-  if (!tranmap_data[alpha]) {
-    char* filename;
+  // if (!tranmap_data[alpha]) {
+  //   char* filename;
 
-    if (!tranmap_palette_dir)
-      dsda_InitTranMapPaletteDir();
+  //   if (!tranmap_palette_dir)
+  //     dsda_InitTranMapPaletteDir();
 
-    length = strlen(tranmap_palette_dir) + 16; // "/tranmap_99.dat\0"
-    filename = Z_Malloc(length);
-    snprintf(filename, length, "%s/tranmap_%02d.dat", tranmap_palette_dir, alpha);
+  //   length = strlen(tranmap_palette_dir) + 16; // "/tranmap_99.dat\0"
+  //   filename = Z_Malloc(length);
+  //   snprintf(filename, length, "%s/tranmap_%02d.dat", tranmap_palette_dir, alpha);
 
-    length = M_ReadFile(filename, &buffer);
-    if (buffer && length != tranmap_length) {
-      Z_Free(buffer);
-      buffer = NULL;
-    }
+  //   length = M_ReadFile(filename, &buffer);
+  //   if (buffer && length != tranmap_length) {
+  //     Z_Free(buffer);
+  //     buffer = NULL;
+  //   }
 
-    if (!buffer) {
-      buffer = dsda_GenerateTranMap(alpha);
+  //   if (!buffer) {
+  //     buffer = dsda_GenerateTranMap(alpha);
 
-      M_WriteFile(filename, buffer, tranmap_length);
-    }
+  //     M_WriteFile(filename, buffer, tranmap_length);
+  //   }
 
-    tranmap_data[alpha] = buffer;
-  }
+  //   tranmap_data[alpha] = buffer;
+  // }
 
+  buffer = dsda_GenerateTranMap(alpha);
+  tranmap_data[alpha] = buffer;
   return tranmap_data[alpha];
 }
 

@@ -1452,8 +1452,6 @@ void G_Ticker (void)
 
   entry_leveltime = leveltime;
 
-  printf("G_Ticker A\n"); fflush(stdout);
-
   // CPhipps - player colour changing
   if (!demoplayback && mapcolor.plyr[consoleplayer] != mapcolor.me) {
     // Changed my multiplayer colour - Inform the whole game
@@ -1466,7 +1464,6 @@ void G_Ticker (void)
       G_DoReborn(i);
   P_MapEnd();
 
-printf("G_Ticker B\n"); fflush(stdout);
 
   // Resetting level/game ending indication flags
   reachedLevelExit = 0;
@@ -1487,8 +1484,6 @@ printf("G_Ticker B\n"); fflush(stdout);
     reachedGameEnd = 1;
     if (preventGameEnd == true) gameaction = ga_nothing;
   }
-
-printf("G_Ticker C\n"); fflush(stdout);
 
   // do things to change the game state
   while (gameaction != ga_nothing)
@@ -1529,7 +1524,6 @@ printf("G_Ticker C\n"); fflush(stdout);
     }
   }
 
-printf("G_Ticker D\n"); fflush(stdout);
   dsda_EvaluateSkipModeGTicker();
 
   if (!dsda_SkipMode() && gamestate == GS_LEVEL)
@@ -1549,8 +1543,6 @@ printf("G_Ticker D\n"); fflush(stdout);
   if (dsda_BuildMode())
     dsda_RefreshBuildMode();
 
-printf("G_Ticker E\n"); fflush(stdout);
-
   if (dsda_AdvanceFrame())
   {
     advance_frame = true;
@@ -1563,28 +1555,22 @@ printf("G_Ticker E\n"); fflush(stdout);
     I_SafeExit(0);
   }
 
-printf("G_Ticker E2\n"); fflush(stdout);
-
   if (dsda_PausedOutsideDemo())
   {
-    printf("G_Ticker E21\n"); fflush(stdout);
     boom_basetic++;  // For revenant tracers and RNG -- we must maintain sync
     true_basetic++;
   }
   else {
     int buf = gametic % BACKUPTICS;
 
-    printf("G_Ticker E22\n"); fflush(stdout);
-    // dsda_UpdateAutoKeyFrames();
-    // dsda_UpdateAutoSaves();
+    dsda_UpdateAutoKeyFrames();
+    dsda_UpdateAutoSaves();
 
-    // if (dsda_BruteForce())
-    // {
-    //   dsda_UpdateBruteForce();
-    //   dsda_RemovePauseMode(PAUSE_BUILDMODE);
-    // }
-
-printf("G_Ticker E3\n"); fflush(stdout);
+    if (dsda_BruteForce())
+    {
+      dsda_UpdateBruteForce();
+      dsda_RemovePauseMode(PAUSE_BUILDMODE);
+    }
 
     for (i = 0; i < g_maxplayers; i++)
     {
@@ -1608,14 +1594,9 @@ printf("G_Ticker E3\n"); fflush(stdout);
       }
     }
 
-printf("G_Ticker F\n"); fflush(stdout);
-
     dsda_InputFlushTick();
-
-    printf("G_Ticker G\n"); fflush(stdout);
     dsda_WatchCommand();
 
-printf("G_Ticker H\n"); fflush(stdout);
     // check for special buttons
     for (i = 0; i < g_maxplayers; i++)
     {
@@ -1673,8 +1654,6 @@ printf("G_Ticker H\n"); fflush(stdout);
       }
     }
 
-    printf("G_Ticker I\n"); fflush(stdout);
-
     // turn inventory off after a certain amount of time
     if (inventory && !(--inventoryTics))
     {
@@ -1699,32 +1678,22 @@ printf("G_Ticker H\n"); fflush(stdout);
     prevgamestate = gamestate;
   }
 
-
-printf("G_Ticker J\n"); fflush(stdout);
   // e6y
   // do nothing if a pause has been pressed during playback
   // pausing during intermission can cause desynchs without that
   if (dsda_PausedOutsideDemo() && gamestate != GS_LEVEL)
     return;
 
-  printf("G_Ticker J0\n"); fflush(stdout);
-
   // do main actions
   switch (gamestate)
   {
     case GS_LEVEL:
-      printf("G_Ticker J1\n"); fflush(stdout);
       P_Ticker();
-      printf("G_Ticker J2\n"); fflush(stdout);
       P_WalkTicker();
-      printf("G_Ticker J3\n"); fflush(stdout);
       mlooky = 0;
       AM_Ticker();
-      printf("G_Ticker J4\n"); fflush(stdout);
       ST_Ticker();
-      printf("G_Ticker J5\n"); fflush(stdout);
       HU_Ticker();
-      printf("G_Ticker J6\n"); fflush(stdout);
       break;
 
     case GS_INTERMISSION:
@@ -1739,8 +1708,6 @@ printf("G_Ticker J\n"); fflush(stdout);
       D_PageTicker();
       break;
   }
-
-printf("G_Ticker K\n"); fflush(stdout);
 
   if (leveltime == entry_leveltime)
     S_StopSoundLoops();
