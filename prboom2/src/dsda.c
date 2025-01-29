@@ -310,7 +310,7 @@ void dsda_WatchDeath(mobj_t* thing) {
 void dsda_WatchKill(player_t* player, mobj_t* target) {
   player->killcount++;
   if (target->intflags & MIF_SPAWNED_BY_ICON) player->maxkilldiscount++;
-  dsda_WadStatsKill();
+  // dsda_WadStatsKill();
 }
 
 void dsda_WatchResurrection(mobj_t* target, mobj_t* raiser) {
@@ -459,7 +459,7 @@ void dsda_WatchAfterLevelSetup(void) {
   dsda_SpawnGhost();
   dsda_ResetTrackers();
   dsda_ResetLineActivationTracker();
-  dsda_WadStatsEnterMap();
+  // dsda_WadStatsEnterMap();
   player_damage_last_tic = 0;
   player_damage_leveltime = 0;
 }
@@ -517,7 +517,7 @@ void dsda_WatchLevelCompletion(void) {
   dsda_any_map_completed = true;
 
   dsda_RecordSplit();
-  dsda_WadStatsExitMap(missed_monsters);
+  // dsda_WadStatsExitMap(missed_monsters);
 }
 
 dboolean dsda_IsWeapon(mobj_t* thing) {

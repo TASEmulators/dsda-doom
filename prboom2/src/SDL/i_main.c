@@ -373,10 +373,7 @@ int headlessMain(int argc, char **argv)
   // e6y: was moved from D_DoomMainSetup
   // init subsystems
   //jff 9/3/98 use logical output routine
-  lprintf(LO_DEBUG, "M_LoadDefaults: Load system defaults.\n");
   M_LoadDefaults();              // load before initing other systems
-  lprintf(LO_DEBUG, "\n");
-
   /* Version info */
   PrintVer();
 

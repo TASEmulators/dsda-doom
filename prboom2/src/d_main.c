@@ -890,86 +890,68 @@ const char *D_dehout(void)
 // the gamemode from it. Also note if DOOM II, whether secret levels exist
 // CPhipps - const char* for iwadname, made static
 //e6y static
-void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
+void CheckIWAD(const char* iwadname, const uint8_t *iwaddata, GameMode_t *gmode,dboolean *hassec)
 {
-  if (M_ReadAccess(iwadname))
-  {
     int ud=0,rg=0,sw=0,cm=0,sc=0,hx=0;
     dboolean dmenupic = false;
     dboolean large_titlepic = false;
-    FILE* fp;
+    wadinfo_t header;
 
-    // Identify IWAD correctly
-    if ((fp = M_OpenFile(iwadname, "rb")))
+    // read IWAD header
+    int pos = 0;
+    memcpy(&header, &iwaddata[pos], sizeof(header)); pos += sizeof(header);
+    size_t length;
+    filelump_t *fileinfo;
+
+    if (strncmp(header.identification, "IWAD", 4)) // missing IWAD tag in header
     {
-      wadinfo_t header;
+      lprintf(LO_WARN,"CheckIWAD: IWAD tag %s not present\n", iwadname);
+    }
 
-      // read IWAD header
-      if (fread(&header, sizeof(header), 1, fp) == 1)
+    // read IWAD directory
+    header.numlumps = LittleLong(header.numlumps);
+    header.infotableofs = LittleLong(header.infotableofs);
+    length = header.numlumps;
+    fileinfo = Z_Malloc(length*sizeof(filelump_t));
+
+    memcpy (fileinfo, &iwaddata[header.infotableofs], sizeof(filelump_t));
+
+    // scan directory for levelname lumps
+    while (length--)
+    {
+      if (fileinfo[length].name[0] == 'E' &&
+          fileinfo[length].name[2] == 'M' &&
+          fileinfo[length].name[4] == 0)
       {
-        size_t length;
-        filelump_t *fileinfo;
-
-        if (strncmp(header.identification, "IWAD", 4)) // missing IWAD tag in header
-        {
-          lprintf(LO_WARN,"CheckIWAD: IWAD tag %s not present\n", iwadname);
-        }
-
-        // read IWAD directory
-        header.numlumps = LittleLong(header.numlumps);
-        header.infotableofs = LittleLong(header.infotableofs);
-        length = header.numlumps;
-        fileinfo = Z_Malloc(length*sizeof(filelump_t));
-        if (fseek (fp, header.infotableofs, SEEK_SET) ||
-            fread (fileinfo, sizeof(filelump_t), length, fp) != length)
-        {
-          fclose(fp);
-          I_Error("CheckIWAD: failed to read directory %s",iwadname);
-        }
-
-        // scan directory for levelname lumps
-        while (length--)
-        {
-          if (fileinfo[length].name[0] == 'E' &&
-              fileinfo[length].name[2] == 'M' &&
-              fileinfo[length].name[4] == 0)
-          {
-            if (fileinfo[length].name[1] == '4')
-              ++ud;
-            else if (fileinfo[length].name[1] == '3')
-              ++rg;
-            else if (fileinfo[length].name[1] == '2')
-              ++rg;
-            else if (fileinfo[length].name[1] == '1')
-              ++sw;
-          }
-          else if (fileinfo[length].name[0] == 'M' &&
-                    fileinfo[length].name[1] == 'A' &&
-                    fileinfo[length].name[2] == 'P' &&
-                    fileinfo[length].name[5] == 0)
-          {
-            ++cm;
-            if (fileinfo[length].name[3] == '3')
-              if (fileinfo[length].name[4] == '1' ||
-                  fileinfo[length].name[4] == '2')
-                ++sc;
-          }
-
-          if (!strncmp(fileinfo[length].name,"DMENUPIC",8))
-            dmenupic = true;
-          if (!strncmp(fileinfo[length].name,"TITLEPIC",8) && fileinfo[length].size > 68168)
-            large_titlepic = true;
-          if (!strncmp(fileinfo[length].name,"HACX",4))
-            hx++;
-        }
-        Z_Free(fileinfo);
-
+        if (fileinfo[length].name[1] == '4')
+          ++ud;
+        else if (fileinfo[length].name[1] == '3')
+          ++rg;
+        else if (fileinfo[length].name[1] == '2')
+          ++rg;
+        else if (fileinfo[length].name[1] == '1')
+          ++sw;
+      }
+      else if (fileinfo[length].name[0] == 'M' &&
+                fileinfo[length].name[1] == 'A' &&
+                fileinfo[length].name[2] == 'P' &&
+                fileinfo[length].name[5] == 0)
+      {
+        ++cm;
+        if (fileinfo[length].name[3] == '3')
+          if (fileinfo[length].name[4] == '1' ||
+              fileinfo[length].name[4] == '2')
+            ++sc;
       }
 
-      fclose(fp);
+      if (!strncmp(fileinfo[length].name,"DMENUPIC",8))
+        dmenupic = true;
+      if (!strncmp(fileinfo[length].name,"TITLEPIC",8) && fileinfo[length].size > 68168)
+        large_titlepic = true;
+      if (!strncmp(fileinfo[length].name,"HACX",4))
+        hx++;
     }
-    else // error from open call
-      I_Error("CheckIWAD: Can't open IWAD %s", iwadname);
+    Z_Free(fileinfo);
 
     // unity iwad has dmenupic and a large titlepic
     if (dmenupic && !large_titlepic)
@@ -992,9 +974,6 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
       *gmode = registered;
     else if (sw>=9)
       *gmode = shareware;
-  }
-  else // error from access call
-    I_Error("CheckIWAD: IWAD %s not readable", iwadname);
 }
 
 //
@@ -1004,12 +983,14 @@ void AddIWAD(const char *iwad, void* const buffer, const size_t size)
 {
   size_t i;
 
+  printf("AddIWAD: adding '%s'\n", iwad);
+
   if (!(iwad && *iwad))
     return;
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "IWAD found: %s\n", iwad); //jff 4/20/98 print only if found
-  CheckIWAD(iwad,&gamemode,&haswolflevels);
+  CheckIWAD(iwad, buffer, &gamemode, &haswolflevels);
 
   /* jff 8/23/98 set gamemission global appropriately in all cases
   * cphipps 12/1999 - no version output here, leave that to the caller
@@ -1066,6 +1047,7 @@ void AddIWAD(const char *iwad, void* const buffer, const size_t size)
   if (gamemode == indetermined)
     //jff 9/3/98 use logical output routine
     lprintf(LO_WARN,"Unknown Game Version, may not work\n");
+
   D_AddFile(iwad,source_iwad, buffer, size);
 }
 
@@ -1711,11 +1693,12 @@ void D_DoomMainSetup(void)
     I_SafeExit(0);
   }
 
+
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
 
   IdentifyVersion();
-
   dsda_InitGlobal();
+
 
   // e6y: DEH files preloaded in wrong order
   // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
@@ -1761,7 +1744,9 @@ void D_DoomMainSetup(void)
     autostart = true;
   }
 
+
   HandleClass();
+
 
   arg = dsda_Arg(dsda_arg_timer);
   if (arg->found && deathmatch)
@@ -1787,6 +1772,7 @@ void D_DoomMainSetup(void)
   G_ReloadDefaults();    // killough 3/4/98: set defaults just loaded.
   // jff 3/24/98 this sets startskill if it was -1
 
+
   // proff 04/05/2000: for GL-specific switches
   #ifdef __ENABLE_OPENGL_
   gld_InitCommandLine();
@@ -1803,7 +1789,7 @@ void D_DoomMainSetup(void)
   e6y_InitCommandLine();
 
   // CPhipps - autoloading of wads
-  autoload = !dsda_Flag(dsda_arg_noautoload);
+  autoload = 0; //!dsda_Flag(dsda_arg_noautoload);
 
   // Must be provided externally
   // D_AddFile(port_wad_file, source_auto_load);
@@ -1979,8 +1965,8 @@ void D_DoomMainSetup(void)
   dsda_AppendZDoomMobjInfo();
   dsda_ApplyDefaultMapFormat();
 
-  lprintf(LO_DEBUG, "dsda_InitWadStats: Setting up wad stats.\n");
-  dsda_InitWadStats();
+  // lprintf(LO_DEBUG, "dsda_InitWadStats: Setting up wad stats.\n");
+  // dsda_InitWadStats();
 
   lprintf(LO_INFO, "\n"); // Separator after file loading
 
