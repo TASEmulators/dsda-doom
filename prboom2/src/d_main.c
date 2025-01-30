@@ -914,7 +914,7 @@ void CheckIWAD(const char* iwadname, const uint8_t *iwaddata, GameMode_t *gmode,
     length = header.numlumps;
     fileinfo = Z_Malloc(length*sizeof(filelump_t));
 
-    memcpy (fileinfo, &iwaddata[header.infotableofs], sizeof(filelump_t));
+    memcpy (fileinfo, &iwaddata[header.infotableofs], sizeof(filelump_t) * length);
 
     // scan directory for levelname lumps
     while (length--)
