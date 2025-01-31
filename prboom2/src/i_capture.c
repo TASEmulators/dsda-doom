@@ -541,6 +541,19 @@ void I_CapturePrep (const char *fn)
   I_AtExit (I_CaptureFinish, true, "I_CaptureFinish", exit_priority_normal);
 }
 
+unsigned char * I_CaptureAudio (int* nsamples)
+{
+  int partsof35 = 0; // correct for sync when samplerate % 35 != 0
+  *nsamples = snd_samplerate / cap_fps;
+  partsof35 += snd_samplerate % cap_fps;
+  if (partsof35 >= cap_fps)
+  {
+    partsof35 -= cap_fps;
+    (*nsamples)++;
+  }
+
+  return I_GrabSound (*nsamples);
+}
 
 
 // capture a single frame of video (and corresponding audio length)
@@ -578,7 +591,6 @@ void I_CaptureFrame (void)
       lprintf(LO_WARN, "I_CaptureFrame: error writing videopipe.\n");
     //Z_Free (vid); // static buffer
   }
-
 }
 
 
