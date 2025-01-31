@@ -983,8 +983,6 @@ void AddIWAD(const char *iwad, void* const buffer, const size_t size)
 {
   size_t i;
 
-  printf("AddIWAD: adding '%s'\n", iwad);
-
   if (!(iwad && *iwad))
     return;
 
