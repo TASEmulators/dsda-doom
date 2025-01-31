@@ -543,12 +543,13 @@ void I_CapturePrep (const char *fn)
 
 unsigned char * I_CaptureAudio (int* nsamples)
 {
+  int fps = 35;
   int partsof35 = 0; // correct for sync when samplerate % 35 != 0
-  *nsamples = snd_samplerate / cap_fps;
-  partsof35 += snd_samplerate % cap_fps;
-  if (partsof35 >= cap_fps)
+  *nsamples = snd_samplerate / fps;
+  partsof35 += snd_samplerate % fps;
+  if (partsof35 >= fps)
   {
-    partsof35 -= cap_fps;
+    partsof35 -= fps;
     (*nsamples)++;
   }
 
