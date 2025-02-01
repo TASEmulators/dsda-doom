@@ -2114,16 +2114,24 @@ void headlessUpdateVideo(void)
   }
 }
 
-void headlessEnableRendering()
- {
-    nodrawers = 0;
-    nomusicparm = 0;
-    nosfxparm = 0;
- }
+void headlessEnableVideoRendering()
+{
+  nodrawers = 0;
+}
 
-void headlessDisableRendering()
+void headlessDisableVideoRendering()
 {
    nodrawers = 1;
+}
+
+void headlessEnableAudioRendering()
+{
+  nomusicparm = 0;
+  nosfxparm = 0;
+}
+
+void headlessDisableAudioRendering()
+{
    nomusicparm = 1;
    nosfxparm = 1;
 }
