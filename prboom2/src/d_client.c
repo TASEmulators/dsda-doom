@@ -77,9 +77,9 @@ void D_InitFakeNetGame (void)
   coop_spawns = dsda_Flag(dsda_arg_coop_spawns);
   netgame = solo_net;
 
-  playeringame[0] = true;
-  for (i = 1; i < g_maxplayers; i++)
-    playeringame[i] = false;
+  // playeringame[0] = true;
+  // for (i = 1; i < g_maxplayers; i++)
+  //   playeringame[i] = false;
 }
 
 void FakeNetUpdate(void)
