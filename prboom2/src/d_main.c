@@ -2139,7 +2139,7 @@ void headlessDisableAudioRendering()
 /// Headless functions
 
 void headlessClearTickCommand() { memset(local_cmds, 0, sizeof(ticcmd_t) * MAX_MAXPLAYERS); }
-void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, int turningSpeed, int fire, int action, int weapon, int altWeapon)
+void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, int turningSpeed, int fire, int action, int weapon, int altWeapon, int lookfly, int artifact, int jump, int endPlayer)
 {
   local_cmds[playerId].forwardmove = forwardSpeed;
   local_cmds[playerId].sidemove    = strafingSpeed;
@@ -2158,6 +2158,12 @@ void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, i
   if (weapon == 7)  local_cmds[playerId].buttons |= 0b00011100;
 
   if (altWeapon == 1)  local_cmds[playerId].buttons |= 0b00100000;
+
+  local_cmds[playerId].lookfly = lookfly;
+  local_cmds[playerId].arti = artifact;
+  
+  if (jump == 1) local_cmds[playerId].arti |= 0b00100000;
+  if (endPlayer == 1) local_cmds[playerId].arti |= 0b01000000;
 
   // printf("ForwardSpeed: %d - sideMove:     %d - angleTurn:    %d - buttons: %u\n", forwardSpeed, strafingSpeed, turningSpeed, local_cmds[playerId].buttons);
 }
