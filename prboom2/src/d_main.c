@@ -2162,7 +2162,7 @@ void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, i
   local_cmds[playerId].lookfly = lookfly;
   local_cmds[playerId].arti = artifact;
   
-  if (jump == 1) local_cmds[playerId].arti |= 0b00100000;
+  if (jump == 1)  local_cmds[playerId].arti |= 0b10000000;
   if (endPlayer == 1) local_cmds[playerId].arti |= 0b01000000;
 
   // printf("ForwardSpeed: %d - sideMove:     %d - angleTurn:    %d - buttons: %u\n", forwardSpeed, strafingSpeed, turningSpeed, local_cmds[playerId].buttons);
