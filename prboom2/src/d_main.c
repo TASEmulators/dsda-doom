@@ -1547,28 +1547,9 @@ static void HandleWarp(void)
 
 static void HandleClass(void)
 {
-  int p;
-  dsda_arg_t* arg;
-  int player_class = PCLASS_FIGHTER;
-
-  if (!hexen) return;
-
-  arg = dsda_Arg(dsda_arg_class);
-  if (arg->found)
-    player_class = arg->value.v_int + PCLASS_FIGHTER;
-
-  if (
-    player_class != PCLASS_FIGHTER &&
-    player_class != PCLASS_CLERIC &&
-    player_class != PCLASS_MAGE
-  )
-    player_class = PCLASS_FIGHTER;
-
-  PlayerClass[0] = player_class;
-  for (p = 1; p < MAX_MAXPLAYERS; p++)
-    PlayerClass[p] = PCLASS_FIGHTER;
-
-  randomclass = dsda_Flag(dsda_arg_randclass);
+  for (int p = 0; p < MAX_MAXPLAYERS; p++)
+   if (hexen) { if (PlayerClass[p] != PCLASS_FIGHTER && PlayerClass[p] != PCLASS_CLERIC && PlayerClass[p] != PCLASS_MAGE)  PlayerClass[p] = PCLASS_FIGHTER; }
+  else for (p = 0; p < MAX_MAXPLAYERS; p++)  PlayerClass[p] = PCLASS_NULL;
 }
 
 static void HandlePlayback(void)
