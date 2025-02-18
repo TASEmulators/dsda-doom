@@ -202,6 +202,10 @@ size_t     num_deathmatchstarts;   // killough
 mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAX_PLAYER_STARTS][MAX_MAXPLAYERS];
 
+// for thing tracking (xdre style)
+int numthings;
+mobj_t **mobj_ptrs;
+
 static int current_episode = -1;
 static int current_map = -1;
 static nodes_version_t current_nodesVersion = UNKNOWN_NODES;
@@ -1625,7 +1629,7 @@ static void P_PostProcessMapThing(mapthing_t *mt, int i, int *mobjcount, mobj_t 
 
 static void P_LoadThings(int lump)
 {
-  int  i, numthings;
+  int  i;
   int mobjcount;
   mobj_t **mobjlist;
   const byte *data;
@@ -1638,6 +1642,9 @@ static void P_LoadThings(int lump)
   doom_data = (const doom_mapthing_t*) data;
   mobjcount = 0;
   mobjlist = Z_Malloc(numthings * sizeof(mobjlist[0]));
+  
+  mobj_ptrs = Z_Malloc(numthings * sizeof(mobj_t *));
+  memset(mobj_ptrs, 0, numthings * sizeof(mobj_t *));
 
   if (!data || !numthings)
     I_Error("P_LoadThings: no things in level");
