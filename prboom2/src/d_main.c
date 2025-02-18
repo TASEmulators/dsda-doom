@@ -2129,14 +2129,11 @@ void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, i
   if (fire == 1)    local_cmds[playerId].buttons |= 0b00000001;
   if (action == 1)  local_cmds[playerId].buttons |= 0b00000010;
 
-  if (weapon == 0)  local_cmds[playerId].buttons |= 0b00000000;
-  if (weapon == 1)  local_cmds[playerId].buttons |= 0b00000100;
-  if (weapon == 2)  local_cmds[playerId].buttons |= 0b00001000;
-  if (weapon == 3)  local_cmds[playerId].buttons |= 0b00001100;
-  if (weapon == 4)  local_cmds[playerId].buttons |= 0b00010000;
-  if (weapon == 5)  local_cmds[playerId].buttons |= 0b00010100;
-  if (weapon == 6)  local_cmds[playerId].buttons |= 0b00011000;
-  if (weapon == 7)  local_cmds[playerId].buttons |= 0b00011100;
+  if (weapon != 0)
+  {
+    local_cmds[playerId].buttons |= BT_CHANGE;
+    local_cmds[playerId].buttons |= (weapon - 1)<<BT_WEAPONSHIFT;
+  }
 
   if (altWeapon == 1)  local_cmds[playerId].buttons |= 0b00100000;
 
