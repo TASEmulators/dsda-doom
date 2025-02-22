@@ -2124,7 +2124,7 @@ void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, i
 {
   local_cmds[playerId].forwardmove = forwardSpeed;
   local_cmds[playerId].sidemove    = strafingSpeed;
-  local_cmds[playerId].angleturn   = turningSpeed << 8;
+  local_cmds[playerId].angleturn   = (shorttics || !longtics) ? turningSpeed << 8 : turningSpeed;
 
   if (fire == 1)    local_cmds[playerId].buttons |= 0b00000001;
   if (action == 1)  local_cmds[playerId].buttons |= 0b00000010;
