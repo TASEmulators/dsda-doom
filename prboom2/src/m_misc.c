@@ -667,6 +667,7 @@ void M_LoadDefaults (void)
 {
   int   i;
   int   len;
+  FILE* f;
   char  def[80];
   char* strparm = Z_Malloc(CFG_BUFFERMAX);
   char* cfgline = Z_Malloc(CFG_BUFFERMAX);
@@ -697,118 +698,118 @@ void M_LoadDefaults (void)
     }
   }
 
-  // // check for a custom default file
+  // check for a custom default file
 
-  // arg = dsda_Arg(dsda_arg_config);
-  // if (arg->found)
-  // {
-  //   defaultfile = Z_Strdup(arg->value.v_string);
-  // }
-  // else
-  // {
-  //   const char* configdir = I_ConfigDir();
-  //   int len = snprintf(NULL, 0, "%s/dsda-doom.cfg", configdir);
-  //   defaultfile = Z_Malloc(len + 1);
-  //   snprintf(defaultfile, len + 1, "%s/dsda-doom.cfg", configdir);
-  // }
+  arg = dsda_Arg(dsda_arg_config);
+  if (arg->found)
+  {
+    defaultfile = Z_Strdup(arg->value.v_string);
+  }
+  else
+  {
+    const char* configdir = I_ConfigDir();
+    int len = snprintf(NULL, 0, "%s/dsda-doom.cfg", configdir);
+    defaultfile = Z_Malloc(len + 1);
+    snprintf(defaultfile, len + 1, "%s/dsda-doom.cfg", configdir);
+  }
 
-  // lprintf(LO_DEBUG, " default file: %s\n", defaultfile);
+  lprintf(LO_DEBUG, " default file: %s\n", defaultfile);
 
-  // // read the file in, overriding any set defaults
+  // read the file in, overriding any set defaults
 
-  // f = M_OpenFile(defaultfile, "r");
-  // if (f)
-  // {
-  //   while (!feof(f))
-  //   {
-  //     parm = 0;
+  f = M_OpenFile(defaultfile, "r");
+  if (f)
+  {
+    while (!feof(f))
+    {
+      parm = 0;
 
-  //     cfgline = fgets(cfgline, CFG_BUFFERMAX, f);
-  //     if (!cfgline)
-  //       break;
+      cfgline = fgets(cfgline, CFG_BUFFERMAX, f);
+      if (!cfgline)
+        break;
 
-  //     if (sscanf (cfgline, "%79s %[^\n]\n", def, strparm) == 2)
-  //     {
-  //       newstring = NULL;
+      if (sscanf (cfgline, "%79s %[^\n]\n", def, strparm) == 2)
+      {
+        newstring = NULL;
 
-  //       //jff 3/3/98 skip lines not starting with an alphanum
-  //       if (!isalnum(def[0]))
-  //         continue;
+        //jff 3/3/98 skip lines not starting with an alphanum
+        if (!isalnum(def[0]))
+          continue;
 
-  //       if (strparm[0] == '"')
-  //       {
-  //         // get a string
-  //         len = strlen(strparm);
-  //         newstring = Z_Malloc(len);
-  //         strparm[len - 1] = 0; // clears trailing double-quote mark
-  //         strcpy(newstring, strparm + 1); // clears leading double-quote mark
-  //       }
-  //       else if ((strparm[0] == '0') && (strparm[1] == 'x'))
-  //       {
-  //         // CPhipps - allow ints to be specified in hex
-  //         sscanf(strparm+2, "%x", &parm);
-  //       }
-  //       else
-  //       {
-  //         sscanf(strparm, "%i", &parm);
-  //       }
+        if (strparm[0] == '"')
+        {
+          // get a string
+          len = strlen(strparm);
+          newstring = Z_Malloc(len);
+          strparm[len - 1] = 0; // clears trailing double-quote mark
+          strcpy(newstring, strparm + 1); // clears leading double-quote mark
+        }
+        else if ((strparm[0] == '0') && (strparm[1] == 'x'))
+        {
+          // CPhipps - allow ints to be specified in hex
+          sscanf(strparm+2, "%x", &parm);
+        }
+        else
+        {
+          sscanf(strparm, "%i", &parm);
+        }
 
-  //       if (dsda_ReadConfig(def, newstring, parm))
-  //       {
-  //         Z_Free(newstring);
-  //       }
-  //       else
-  //       {
-  //         for (i = 0; i < input_def_count; i++)
-  //           if (!strcmp(def, input_defs[i].name))
-  //           {
-  //             int count;
-  //             char keys[80];
-  //             int key, mouseb, joyb;
-  //             int index = 0;
-  //             char* key_scan_p;
-  //             char* config_scan_p;
+        if (dsda_ReadConfig(def, newstring, parm))
+        {
+          Z_Free(newstring);
+        }
+        else
+        {
+          for (i = 0; i < input_def_count; i++)
+            if (!strcmp(def, input_defs[i].name))
+            {
+              int count;
+              char keys[80];
+              int key, mouseb, joyb;
+              int index = 0;
+              char* key_scan_p;
+              char* config_scan_p;
 
-  //             config_scan_p = strparm;
-  //             do
-  //             {
-  //               count = sscanf(config_scan_p, "%79s %d %d", keys, &mouseb, &joyb);
+              config_scan_p = strparm;
+              do
+              {
+                count = sscanf(config_scan_p, "%79s %d %d", keys, &mouseb, &joyb);
 
-  //               if (count != 3)
-  //                 break;
+                if (count != 3)
+                  break;
 
-  //               dsda_InputResetSpecific(index, input_defs[i].identifier);
+                dsda_InputResetSpecific(index, input_defs[i].identifier);
 
-  //               dsda_InputAddSpecificMouseB(index, input_defs[i].identifier, mouseb);
-  //               dsda_InputAddSpecificJoyB(index, input_defs[i].identifier, joyb);
+                dsda_InputAddSpecificMouseB(index, input_defs[i].identifier, mouseb);
+                dsda_InputAddSpecificJoyB(index, input_defs[i].identifier, joyb);
 
-  //               key_scan_p = strtok(keys, ",");
-  //               do
-  //               {
-  //                 count = sscanf(key_scan_p, "%d,", &key);
+                key_scan_p = strtok(keys, ",");
+                do
+                {
+                  count = sscanf(key_scan_p, "%d,", &key);
 
-  //                 if (count != 1)
-  //                   break;
+                  if (count != 1)
+                    break;
 
-  //                 dsda_InputAddSpecificKey(index, input_defs[i].identifier, key);
+                  dsda_InputAddSpecificKey(index, input_defs[i].identifier, key);
 
-  //                 key_scan_p = strtok(NULL, ",");
-  //               } while (key_scan_p);
+                  key_scan_p = strtok(NULL, ",");
+                } while (key_scan_p);
 
-  //               index++;
-  //               config_scan_p = strchr(config_scan_p, '|');
-  //               if (config_scan_p)
-  //                 config_scan_p++;
-  //             } while (config_scan_p && index < DSDA_INPUT_PROFILE_COUNT);
+                index++;
+                config_scan_p = strchr(config_scan_p, '|');
+                if (config_scan_p)
+                  config_scan_p++;
+              } while (config_scan_p && index < DSDA_INPUT_PROFILE_COUNT);
 
-  //             break;
-  //           }
-  //       }
-  //     }
-  //   }
+              break;
+            }
+        }
+      }
+    }
 
-  //   fclose (f);
-  // }
+    fclose (f);
+  }
 
   Z_Free(strparm);
   Z_Free(cfgline);
