@@ -527,7 +527,7 @@ void D_Display (fixed_t frac)
   else {
     // wipe update
     wipe_EndScreen();
-    D_Wipe();
+    //D_Wipe();
   }
 
   // e6y

@@ -263,3 +263,11 @@ int wipe_ScreenWipe(int ticks)
   }
   return !go;
 }
+
+int wipe_Pending()
+{
+	return !(wipe_scr_start.width == 0
+		|| wipe_scr_start.height == 0
+		|| wipe_scr_end.width == 0
+		|| wipe_scr_end.height == 0);
+}
