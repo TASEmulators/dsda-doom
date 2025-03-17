@@ -152,8 +152,6 @@ FILE    *debugfile;
 
 dboolean advancedemo;
 
-int last_automap_input[4] = { 0 };
-
 //jff 4/19/98 list of standard IWAD names
 const char *const standard_iwads[]=
 {
@@ -2121,7 +2119,11 @@ void headlessDisableAudioRendering()
 
 /// Headless functions
 
-void headlessClearTickCommand() { memset(local_cmds, 0, sizeof(ticcmd_t) * MAX_MAXPLAYERS); }
+void headlessClearTickCommand()
+{
+  memset(local_cmds, 0, sizeof(ticcmd_t) * MAX_MAXPLAYERS);
+}
+
 void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, int turningSpeed, int fire, int action, int weapon, int automap, int lookfly, int artifact, int jump, int endPlayer)
 {
   local_cmds[playerId].forwardmove = forwardSpeed;
@@ -2142,15 +2144,6 @@ void headlessSetTickCommand(int playerId, int forwardSpeed, int strafingSpeed, i
   
   if (endPlayer == 1) local_cmds[playerId].arti |= 0b01000000;
   if (jump == 1)      local_cmds[playerId].arti |= 0b10000000;
-
-  if (automap && !last_automap_input[playerId])
-  {
-    if (automap_input)
-      AM_Stop(true);
-    else
-      AM_Start(true);
-  }
-  last_automap_input[playerId] = automap;
 
   // printf("ForwardSpeed: %d - sideMove:     %d - angleTurn:    %d - buttons: %u\n", forwardSpeed, strafingSpeed, turningSpeed, local_cmds[playerId].buttons);
 }
