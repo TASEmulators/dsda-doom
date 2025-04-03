@@ -161,8 +161,8 @@ static highlight_t highlight;
 static int map_blinking_locks;
 static int map_secret_after;
 static int map_grid_size;
-static int map_pan_speed;
-static int map_scroll_speed;
+int map_pan_speed;
+int map_scroll_speed;
 static int map_wheel_zoom;
 int map_textured;
 int map_use_multisampling;
@@ -295,10 +295,10 @@ static int  f_y;
 static int  f_w;
 static int  f_h;
 
-static mpoint_t m_paninc;    // how far the window pans each tic (map coords)
-static fixed_t mtof_zoommul; // how far the window zooms each tic (map coords)
-static fixed_t ftom_zoommul; // how far the window zooms each tic (fb coords)
-static fixed_t curr_mtof_zoommul;
+mpoint_t m_paninc;    // how far the window pans each tic (map coords)
+fixed_t mtof_zoommul; // how far the window zooms each tic (map coords)
+fixed_t ftom_zoommul; // how far the window zooms each tic (fb coords)
+fixed_t curr_mtof_zoommul;
 
 static fixed_t m_x, m_y;     // LL x,y window location on the map (map coords)
 static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
@@ -328,9 +328,9 @@ static fixed_t old_m_w, old_m_h;
 static fixed_t old_m_x, old_m_y;
 
 // used by MTOF to scale from map-to-frame-buffer coords
-static fixed_t scale_mtof = (fixed_t)INITSCALEMTOF;
+fixed_t scale_mtof = (fixed_t)INITSCALEMTOF;
 // used by FTOM to scale from frame-buffer-to-map coords (=1/scale_mtof)
-static fixed_t scale_ftom;
+fixed_t scale_ftom;
 static fixed_t prev_scale_mtof = (fixed_t)INITSCALEMTOF;
 
 static player_t *plr;           // the player represented by an arrow
@@ -377,10 +377,10 @@ static void AM_SetFPointFloatValue(fpoint_t *p)
   p->fy = (float)p->y;
 }
 
-static dboolean stop_zooming;
-static int zoom_leveltime;
+dboolean stop_zooming;
+int zoom_leveltime;
 
-static void AM_StopZooming(void)
+void AM_StopZooming(void)
 {
   mtof_zoommul = FRACUNIT;
   ftom_zoommul = FRACUNIT;
@@ -414,7 +414,7 @@ static void AM_activateNewScale(void)
 //
 // Passed nothing, returns nothing
 //
-static void AM_saveScaleAndLoc(void)
+void AM_saveScaleAndLoc(void)
 {
   old_m_x = m_x;
   old_m_y = m_y;
@@ -430,7 +430,7 @@ static void AM_saveScaleAndLoc(void)
 //
 // Passed nothing, returns nothing
 //
-static void AM_restoreScaleAndLoc(void)
+void AM_restoreScaleAndLoc(void)
 {
   m_w = old_m_w;
   m_h = old_m_h;
@@ -478,7 +478,7 @@ void AM_setMarkParams(int num)
 //
 // Passed nothing, returns nothing
 //
-static void AM_addMark(void)
+void AM_addMark(void)
 {
   // killough 2/22/98:
   // remove limit on automap marks
@@ -832,7 +832,7 @@ void AM_Start(dboolean full_automap)
 //
 // Passed nothing, returns nothing
 //
-static void AM_minOutWindowScale(void)
+void AM_minOutWindowScale(void)
 {
   scale_mtof = min_scale_mtof;
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
