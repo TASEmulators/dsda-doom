@@ -575,7 +575,6 @@ void I_UpdateVideoMode(void)
   screen_multiply = dsda_IntConfig(dsda_config_render_screen_multiply);
   // integer_scaling = dsda_IntConfig(dsda_config_integer_scaling);
 
-  I_InitScreenResolution();
   
   // [FG] aspect ratio correction for the canonical video modes
   if (SCREENHEIGHT == 200 || SCREENHEIGHT == 400)
