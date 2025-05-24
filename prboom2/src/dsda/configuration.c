@@ -338,7 +338,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_show_messages] = {
     "show_messages", dsda_config_show_messages,
-    CONF_BOOL(1), NULL, NOT_STRICT, M_ChangeMessages
+    CONF_BOOL(1), NULL, NOT_STRICT
   },
   [dsda_config_command_display] = {
     "dsda_command_display", dsda_config_command_display,
