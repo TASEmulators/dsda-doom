@@ -660,7 +660,7 @@ static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump,
   V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), cm, flags);
 }
 
-static int currentPaletteIndex = 0;
+int currentPaletteIndex = 0;
 
 void V_TouchPalette(void)
 {
