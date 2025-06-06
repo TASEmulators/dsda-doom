@@ -278,8 +278,8 @@ char         savedescription[SAVEDESCLEN];  // Description to save in savegame i
 int inventoryTics;
 int lookheld;
 
-static dboolean InventoryMoveLeft(void);
-static dboolean InventoryMoveRight(void);
+dboolean InventoryMoveLeft(void);
+dboolean InventoryMoveRight(void);
 // end heretic
 
 // hexen
@@ -4232,7 +4232,7 @@ void G_ContinueDemo(const char *playback_name)
 
 // heretic
 
-static dboolean InventoryMoveLeft(void)
+dboolean InventoryMoveLeft(void)
 {
     if (R_FullView())
     {
@@ -4266,7 +4266,7 @@ static dboolean InventoryMoveLeft(void)
     return true;
 }
 
-static dboolean InventoryMoveRight(void)
+dboolean InventoryMoveRight(void)
 {
     player_t *plr;
 
