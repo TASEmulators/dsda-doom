@@ -2369,6 +2369,7 @@ static void AM_drawThings(void)
     t = sectors[i].thinglist;
     while (t) // for all things in that sector
     {
+      int color;
       mpoint_t p;
       angle_t angle;
       fixed_t scale;
@@ -2398,7 +2399,7 @@ static void AM_drawThings(void)
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
       {
-        int color = -1;
+        color = -1;
 
         if (heretic)
         {
@@ -2435,16 +2436,23 @@ static void AM_drawThings(void)
           continue;
         }
       }
+      color = mapcolor_p->sprt;
+
+      if (t->flags & MF_FRIEND && !t->player)
+        color = mapcolor_p->frnd;
+      /* cph 2006/07/30 - Show count-as-kills in red. */
+      else if ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL)
+        color = mapcolor_p->enemy;
+      /* bbm 2/28/03 Show countable items in yellow. */
+      else if (t->flags & MF_COUNTITEM)
+        color = mapcolor_p->item;
+      else if (t->flags & MF_SPECIAL)
+        color = mapcolor_p->pickup;
+
       //jff 1/5/98 end added code for keys
       //jff previously entire code
       AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES,
-        scale, 0x40000000,
-        t->flags & MF_FRIEND && !t->player ? mapcolor_p->frnd :
-        /* cph 2006/07/30 - Show count-as-kills in red. */
-        ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_p->enemy :
-        /* bbm 2/28/03 Show countable items in yellow. */
-        t->flags & MF_COUNTITEM ? mapcolor_p->item : mapcolor_p->sprt,
-        p.x, p.y);
+        scale, 0x40000000, color, p.x, p.y);
       t = t->snext;
     }
    }
