@@ -1273,7 +1273,10 @@ void P_MobjThinker (mobj_t* mobj)
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
 
-  mobj_ptrs[mobj->index + g_maxplayers] = mobj;
+  // players have index -1 and need to be added separately
+  // offset map objects to leave room for the players in the beginning
+  if (mobj->index >= 0)
+    mobj_ptrs[mobj->index + g_maxplayers] = mobj;
 
   // momentum movement
   BlockingMobj = NULL;
