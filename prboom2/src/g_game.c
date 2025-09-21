@@ -2809,7 +2809,7 @@ void G_ReloadDefaults(void)
   // killough 2/21/98:
   //memset(playeringame + 1, 0, sizeof(*playeringame) * (MAX_MAXPLAYERS - 1));
 
-  consoleplayer = 0;
+  //consoleplayer = 0;
 
   // MBF introduced configurable compatibility settings
   if (mbf_features)
