@@ -1273,7 +1273,7 @@ void P_MobjThinker (mobj_t* mobj)
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
 
-  mobj_ptrs[mobj->index] = mobj;
+  mobj_ptrs[mobj->index + g_maxplayers] = mobj;
 
   // momentum movement
   BlockingMobj = NULL;
