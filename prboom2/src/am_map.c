@@ -281,6 +281,17 @@ mline_t thintriangle_guy[] =
 #undef R
 #define NUMTHINTRIANGLEGUYLINES (sizeof(thintriangle_guy)/sizeof(mline_t))
 
+#define R (FRACUNIT)
+mline_t thingbox_guy[] =
+{
+{ { (fixed_t)(-R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)(-R) } },
+{ { (fixed_t)( R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)( R) } },
+{ { (fixed_t)( R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)( R) } },
+{ { (fixed_t)(-R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)(-R) } }
+};
+#undef R
+#define NUMTHINGBOXGUYLINES (sizeof(thingbox_guy)/sizeof(mline_t))
+
 int automap_active;
 int automap_overlay;
 int automap_rotate;
@@ -2426,8 +2437,8 @@ static void AM_drawThings(void)
       }
       //jff 1/5/98 end added code for keys
       //jff previously entire code
-      AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
-        scale, angle,
+      AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES,
+        scale, 0x40000000,
         t->flags & MF_FRIEND && !t->player ? mapcolor_p->frnd :
         /* cph 2006/07/30 - Show count-as-kills in red. */
         ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_p->enemy :
