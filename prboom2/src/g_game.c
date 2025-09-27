@@ -1689,7 +1689,7 @@ void G_Ticker (void)
   {
     case GS_LEVEL:
       P_Ticker();
-      P_WalkTicker();
+      //P_WalkTicker();
       mlooky = 0;
       AM_Ticker();
       ST_Ticker();
