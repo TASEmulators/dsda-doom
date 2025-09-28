@@ -61,6 +61,9 @@ static dboolean newthinkerpresent;
 // a special class of thinkers, to allow more efficient searches.
 thinker_t thinkerclasscap[th_all+1];
 int init_thinkers_count = 0;
+int thinker_count = 0;
+
+extern mobj_t **mobj_ptrs;
 
 //
 // P_InitThinkers
@@ -76,6 +79,7 @@ void P_InitThinkers(void)
   thinkercap.prev = thinkercap.next  = &thinkercap;
 
   init_thinkers_count++;
+  thinker_count = 0;
 }
 
 //
@@ -131,6 +135,8 @@ void P_AddThinker(thinker_t* thinker)
   thinker->cnext = thinker->cprev = NULL;
   P_UpdateThinker(thinker);
   newthinkerpresent = true;
+  
+  mobj_ptrs[thinker_count++] = (mobj_t *)thinker;
 }
 
 //

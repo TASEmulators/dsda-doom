@@ -1261,8 +1261,6 @@ void P_MobjThinker (mobj_t* mobj)
   // removed old code which looked at target references
   // (we use pointer reference counting now)
 
-  extern mobj_t **mobj_ptrs;
-
   if (mobj->type == MT_MUSICSOURCE)
   {
     MusInfoThinker(mobj);
@@ -1272,11 +1270,6 @@ void P_MobjThinker (mobj_t* mobj)
   mobj->PrevX = mobj->x;
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
-
-  // players have index -1 and need to be added separately
-  // offset map objects to leave room for the players in the beginning
-  if (mobj->index >= 0)
-    mobj_ptrs[mobj->index + g_maxplayers] = mobj;
 
   // momentum movement
   BlockingMobj = NULL;
