@@ -64,6 +64,7 @@ int init_thinkers_count = 0;
 int thinker_count = 0;
 
 extern mobj_t **mobj_ptrs;
+extern int max_objects;
 
 //
 // P_InitThinkers
@@ -79,7 +80,6 @@ void P_InitThinkers(void)
   thinkercap.prev = thinkercap.next  = &thinkercap;
 
   init_thinkers_count++;
-  thinker_count = 0;
 }
 
 //
@@ -135,8 +135,6 @@ void P_AddThinker(thinker_t* thinker)
   thinker->cnext = thinker->cprev = NULL;
   P_UpdateThinker(thinker);
   newthinkerpresent = true;
-  
-  mobj_ptrs[thinker_count++] = (mobj_t *)thinker;
 }
 
 //
@@ -256,12 +254,21 @@ void P_SetTarget(mobj_t **mop, mobj_t *targ)
 
 static void P_RunThinkers (void)
 {
+  thinker_count = 0;
   for (currentthinker = thinkercap.next;
        currentthinker != &thinkercap;
        currentthinker = currentthinker->next)
   {
     if (newthinkerpresent)
       R_ActivateThinkerInterpolations(currentthinker);
+
+    // do this before, because function might be P_RemoveThinkerDelayed
+    // and deallocate currentthinker
+    if (thinker_count < max_objects
+      && (currentthinker->function == P_MobjThinker
+        || currentthinker->function == P_BlasterMobjThinker))
+      mobj_ptrs[thinker_count++] = (mobj_t *)currentthinker;
+      
     if (currentthinker->function)
       currentthinker->function(currentthinker);
   }
