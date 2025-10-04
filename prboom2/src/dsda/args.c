@@ -693,6 +693,11 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "turns on mapinfo parsing in doom (temporary arg for testing)",
     arg_null,
   },
+  [dsda_arg_rngseed] = {
+    "-rngseed", NULL, "1993",
+    "sets initial random seed",
+    arg_int, INT_MIN, INT_MAX,
+  },
 };
 
 dsda_arg_t arg_value[dsda_arg_count];

@@ -117,6 +117,7 @@
 #include "i_capture.h"
 
 #include "i_glob.h"
+#include "m_random.h"
 
 static void D_PageDrawer(void);
 
@@ -2017,6 +2018,10 @@ void D_DoomMainSetup(void)
   }
 
   dsda_ExecutePlaybackOptions();
+
+  arg = dsda_Arg(dsda_arg_rngseed);
+  if (arg->found)
+    rngseed = arg->value.v_int;
 
   if (!userdemo)
   {
