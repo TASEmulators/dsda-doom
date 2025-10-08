@@ -1663,7 +1663,6 @@ void D_DoomMainSetup(void)
   int p;
   dsda_arg_t *arg;
   dboolean autoload;
-  enableOutput = 0;
 
   setbuf(stdout,NULL);
 
