@@ -94,6 +94,8 @@ rng_t rng;     // the random number state
 
 unsigned int rngseed = 1993;   // killough 3/26/98: The seed
 
+extern void biz_random_callback(int pr_class);
+
 int (P_Random)(pr_class_t pr_class)
 {
   // killough 2/16/98:  We always update both sets of random number
@@ -124,6 +126,8 @@ int (P_Random)(pr_class_t pr_class)
   // killough 3/26/98: add pr_class*2 to addend
 
   rng.seed[pr_class] = boom * 1664525ul + 221297ul + pr_class*2;
+
+  biz_random_callback(pr_class);
 
   if (demo_compatibility)
     return rndtable[compat];
