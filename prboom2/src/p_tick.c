@@ -63,8 +63,9 @@ thinker_t thinkerclasscap[th_all+1];
 int init_thinkers_count = 0;
 int thinker_count = 0;
 
-extern mobj_t **mobj_ptrs;
-extern int max_objects;
+// for thing tracking (xdre style)
+#define MAX_OBJECTS 0x7FFFFF
+mobj_t* mobj_ptrs[MAX_OBJECTS];
 
 //
 // P_InitThinkers
@@ -264,7 +265,7 @@ static void P_RunThinkers (void)
 
     // do this before, because function might be P_RemoveThinkerDelayed
     // and deallocate currentthinker
-    if (thinker_count < max_objects
+    if (thinker_count < MAX_OBJECTS
       && (currentthinker->function == P_MobjThinker
         || currentthinker->function == P_BlasterMobjThinker))
       mobj_ptrs[thinker_count++] = (mobj_t *)currentthinker;
