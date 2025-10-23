@@ -64,7 +64,6 @@ int init_thinkers_count = 0;
 int thinker_count = 0;
 
 // for thing tracking (xdre style)
-#define MAX_OBJECTS 0x7FFFFF
 mobj_t *mobj_ptrs[MAX_OBJECTS];
 
 //

@@ -65,6 +65,7 @@ typedef enum {
 
 extern thinker_t thinkerclasscap[];
 #define thinkercap thinkerclasscap[th_all]
+#define MAX_OBJECTS 0x7FFFFF
 
 /* cph 2002/01/13 - iterator for thinker lists */
 thinker_t* P_NextThinker(thinker_t*,th_class);
