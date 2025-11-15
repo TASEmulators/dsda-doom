@@ -56,6 +56,8 @@
 
 #include "dsda/args.h"
 
+extern void biz_error_callback(const char *s);
+
 dboolean enableOutput;
 static dboolean disable_message_box;
 
@@ -136,7 +138,8 @@ void I_Error(const char *error, ...)
   }
 #endif
 
- abort(); // Allow debugging
+  biz_error_callback(errmsg);
+  abort(); // Allow debugging
 }
 
 void I_Warn(const char *error, ...)
