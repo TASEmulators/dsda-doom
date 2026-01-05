@@ -113,6 +113,9 @@ int (P_Random)(pr_class_t pr_class)
 
   unsigned long boom;
 
+  // before pr_class is overridden
+  biz_random_callback(pr_class);
+
   // killough 3/31/98:
   // If demo sync insurance is not requested, use
   // much more unstable method by putting everything
@@ -126,8 +129,6 @@ int (P_Random)(pr_class_t pr_class)
   // killough 3/26/98: add pr_class*2 to addend
 
   rng.seed[pr_class] = boom * 1664525ul + 221297ul + pr_class*2;
-
-  biz_random_callback(pr_class);
 
   if (demo_compatibility)
     return rndtable[compat];
