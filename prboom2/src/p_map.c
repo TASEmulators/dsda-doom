@@ -2620,8 +2620,6 @@ void P_LineAttack(mobj_t* t1, angle_t angle, fixed_t distance, fixed_t slope,
 
 mobj_t*   usething;
 
-extern void biz_use_callback(int player);
-
 dboolean PTR_UseTraverse (intercept_t* in)
 {
   int side;
@@ -2710,13 +2708,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
 
   //  return false;   // don't use back side
 
-  if (P_UseSpecialLine (usething, in->d.line, side, false) && usething->player)
-  {
-    for (int i = 0; i < g_maxplayers; ++i) {
-      if (players[i].mo == usething)
-        biz_use_callback(i + 1);
-    }
-  }
+  P_UseSpecialLine(usething, in->d.line, side, false);
 
   //WAS can't use for than one special line in a row
   //jff 3/21/98 NOW multiple use allowed with enabling line flag

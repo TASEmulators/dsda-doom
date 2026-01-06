@@ -1564,11 +1564,15 @@ void P_CrossHexenSpecialLine(line_t *line, int side, mobj_t *thing, dboolean bos
 //  crossed. Change is qualified by demo_compatibility.
 //
 // CPhipps - take a line_t pointer instead of a line number, as in MBF
+
+extern void biz_cross_callback(line_t* line, mobj_t* mo);
+
 void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolean bossaction)
 {
   int ok;
 
   dsda_WatchLineActivation(line, thing);
+  biz_cross_callback(line, thing);
 
   //  Things that should never trigger lines
   //

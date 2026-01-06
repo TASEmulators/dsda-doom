@@ -404,6 +404,9 @@ int GetPairForSwitchTexture(side_t *side)
 // Passed the thing using the line, the line being used, and the side used
 // Returns true if a thinker was created
 //
+
+extern void biz_use_callback(line_t* line, mobj_t* mo);
+
 dboolean
 P_UseSpecialLine
 ( mobj_t*       thing,
@@ -412,6 +415,7 @@ P_UseSpecialLine
   dboolean      bossaction)
 {
   dsda_WatchLineActivation(line, thing);
+  biz_use_callback(line, thing);
 
   if (map_format.hexen)
   {
