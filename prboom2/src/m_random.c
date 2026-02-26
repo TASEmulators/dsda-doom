@@ -94,9 +94,23 @@ rng_t rng;     // the random number state
 
 unsigned int rngseed = 1993;   // killough 3/26/98: The seed
 
-extern void biz_random_callback(int pr_class);
+extern void biz_random_callback(const char *info);
 
-int (P_Random)(pr_class_t pr_class)
+char *filename(char *path)
+{
+    char *aux = path;
+
+    /* Go to end of string, so you don't need strlen */
+    while (*path++) ;
+
+    /* Find the last occurence of / or \ */
+    while (*path-- != '/' && path != aux) ;
+
+    /* It must ignore the slash */
+    return (aux == path) ? path : path + 2;
+}
+
+int (P_Random)(pr_class_t pr_class, const char *function, const char *file, int line)
 {
   // killough 2/16/98:  We always update both sets of random number
   // generators, to ensure repeatability if the demo_compatibility
@@ -112,9 +126,8 @@ int (P_Random)(pr_class_t pr_class)
     (rng. rndindex = (rng. rndindex + 1) & 255) ;
 
   unsigned long boom;
-
-  // before pr_class is overridden
-  biz_random_callback(pr_class);
+  pr_class_t initial_class = pr_class;
+  char hook_info[1024] = "";
 
   // killough 3/31/98:
   // If demo sync insurance is not requested, use
@@ -129,6 +142,12 @@ int (P_Random)(pr_class_t pr_class)
   // killough 3/26/98: add pr_class*2 to addend
 
   rng.seed[pr_class] = boom * 1664525ul + 221297ul + pr_class*2;
+
+  if (initial_class != pr_misc)
+  {
+    sprintf(hook_info, "%s:%d %s()", filename((char *)file), line, function);
+    biz_random_callback(hook_info);
+  }
 
   if (demo_compatibility)
     return rndtable[compat];
