@@ -443,6 +443,12 @@ void P_SetThingPosition(mobj_t *thing)
 // exit with false without checking anything else.
 //
 
+// 1/11/98 killough: Intercept limit removed
+intercept_t *intercepts, *intercept_p;
+dboolean PIT_AddLineIntercepts(line_t *ld);
+dboolean PIT_AddThingIntercepts(mobj_t *thing);
+extern void biz_intercept_callback(int block);
+
 //
 // P_BlockLinesIterator
 // The validcount flags are used to avoid checking lines
@@ -518,9 +524,15 @@ dboolean P_BlockLinesIterator(int x, int y, dboolean func(line_t*))
       ld = &lines[*list];
       if (ld->validcount == validcount)
         continue;       // line has already been checked
+
       ld->validcount = validcount;
+      intercept_t *old_p = intercept_p;
+
       if (!func(ld))
         return false;
+
+      if (old_p != intercept_p && func == PIT_AddLineIntercepts)
+        biz_intercept_callback(y*bmapwidth+x);
     }
   return true;  // everything was checked
 }
@@ -596,6 +608,7 @@ dboolean P_BlockLinesIterator2(int x, int y, dboolean func(line_t*))
       if (ld->validcount2 == validcount2)
         continue;       // line has already been checked
       ld->validcount2 = validcount2;
+
       if (!func(ld))
         return false;
     }
@@ -612,17 +625,22 @@ dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t*))
   mobj_t *mobj;
   if (!(x<0 || y<0 || x>=bmapwidth || y>=bmapheight))
     for (mobj = blocklinks[y*bmapwidth+x]; mobj; mobj = mobj->bnext)
+    {
+      intercept_t *old_p = intercept_p;
+
       if (!func(mobj))
         return false;
+
+      if (old_p != intercept_p && func == PIT_AddThingIntercepts)
+        biz_intercept_callback(y*bmapwidth+x);
+    }
+
   return true;
 }
 
 //
 // INTERCEPT ROUTINES
 //
-
-// 1/11/98 killough: Intercept limit removed
-intercept_t *intercepts, *intercept_p;
 
 // Check for limit and double size if necessary -- killough
 void check_intercept(void)
