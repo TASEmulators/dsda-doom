@@ -445,7 +445,7 @@ void P_SetThingPosition(mobj_t *thing)
 
 dboolean PIT_AddLineIntercepts(line_t *ld);
 dboolean PIT_AddThingIntercepts(mobj_t *thing);
-extern void biz_intercept_callback(int block);
+extern void biz_intercept_callback(int x, int y, int isaline);
 
 //
 // P_BlockLinesIterator
@@ -529,7 +529,7 @@ dboolean P_BlockLinesIterator(int x, int y, dboolean func(line_t*))
         return false;
 
       if (func == PIT_AddLineIntercepts)
-        biz_intercept_callback(y*bmapwidth+x);
+        biz_intercept_callback(x, y, 1);
     }
   return true;  // everything was checked
 }
@@ -627,7 +627,7 @@ dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t*))
         return false;
         
       if (func == PIT_AddThingIntercepts)
-        biz_intercept_callback(y*bmapwidth+x);
+        biz_intercept_callback(x, y, 0);
     }
 
   return true;
